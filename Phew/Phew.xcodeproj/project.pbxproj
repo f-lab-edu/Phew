@@ -40,11 +40,6 @@
 			path = PhewTests;
 			sourceTree = "<group>";
 		};
-		7C7CDA822DA83E6F0095F9CF /* PhewUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PhewUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,7 +72,6 @@
 			children = (
 				7C7CDA6A2DA83E6D0095F9CF /* Phew */,
 				7C7CDA782DA83E6F0095F9CF /* PhewTests */,
-				7C7CDA822DA83E6F0095F9CF /* PhewUITests */,
 				7C7CDA692DA83E6D0095F9CF /* Products */,
 			);
 			sourceTree = "<group>";
@@ -152,9 +146,6 @@
 			);
 			dependencies = (
 				7C7CDA812DA83E6F0095F9CF /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				7C7CDA822DA83E6F0095F9CF /* PhewUITests */,
 			);
 			name = PhewUITests;
 			packageProductDependencies = (
@@ -405,6 +396,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -433,6 +425,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
