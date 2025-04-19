@@ -8,9 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selection: AppScreen? = .calendar
+
     var body: some View {
-        RageButtonView()
-            .modelContainer(for: RageButtonClickTime.self, inMemory: true)
+        AppTabView(selection: $selection)
     }
 }
 
