@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selection: AppScreen? = .calender
+    @State private var selection: AppScreen? = .calendar
 
     var body: some View {
         AppTabView(selection: $selection)
