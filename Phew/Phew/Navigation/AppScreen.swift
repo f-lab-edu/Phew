@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
-    case calender
+    case calendar
     case account
     
     var id: AppScreen { self }
@@ -18,7 +18,7 @@ extension AppScreen {
     @ViewBuilder
     var label: some View {
         switch self {
-        case .calender:
+        case .calendar:
             Label("calender", systemImage: "calendar")
         case .account:
             Label("Account", systemImage: "person.crop.circle")
@@ -28,8 +28,8 @@ extension AppScreen {
     @ViewBuilder
     var destination: some View {
         switch self {
-        case .calender:
-            CalenderView()
+        case .calendar:
+            CalendarMainView()
         case .account:
             AccountView()
         }
