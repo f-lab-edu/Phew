@@ -1,8 +1,9 @@
 import SwiftUI
+import ComposableArchitecture
 import HorizonCalendar
 
 struct CalendarMainView: View {
-    @State private var selectedDate: Date? = nil
+    @State private var selectedDate: Date?
     @State private var isPresenting = false
 
     var body: some View {
@@ -29,6 +30,16 @@ struct CalendarMainView: View {
                 ) {
                     isPresenting = true
                 }
+                .sheet(isPresented: $isPresenting) {
+                    RoutineView(
+                        store: Store(initialState: RoutineFeature.State(mode: .morning)) {
+                        RoutineFeature()
+                    }, routineList: [
+                        Routine(title: "1", description: "1", imageName: "heart", responseType: .text),
+                        Routine(title: "2", description: "2", imageName: "heart", responseType: .score),
+                        Routine(title: "3", description: "3", imageName: "heart", responseType: .none)
+                    ])
+                }
 
                 RoutineButton(
                     icon: "star",
@@ -37,6 +48,18 @@ struct CalendarMainView: View {
                     color: .green
                 ) {
                     isPresenting = true
+                }
+                .sheet(isPresented: $isPresenting) {
+                    RoutineView(
+                        store: Store(initialState: RoutineFeature.State(mode: .night)
+                                    
+                    ) {
+                        RoutineFeature()
+                    }, routineList: [
+                        Routine(title: "1", description: "1", imageName: "heart", responseType: .text),
+                        Routine(title: "2", description: "2", imageName: "heart", responseType: .score),
+                        Routine(title: "3", description: "3", imageName: "heart", responseType: .none)
+                    ])
                 }
             }
         }

@@ -13,5 +13,6 @@ struct PhewApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: RoutineLog.self)
     }
 }
