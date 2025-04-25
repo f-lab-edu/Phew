@@ -12,21 +12,7 @@ struct HomeView: View {
 
     var body: some View {
         VStack {
-            HStack {
-                Button {
-                    viewModel.scrollToPreviousWeek()
-                } label: {
-                    Image(systemName: "chevron.left")
-                }
-                
-                Spacer()
-                
-                Button {
-                    viewModel.scrollToNextWeek()
-                } label: {
-                    Image(systemName: "chevron.right")
-                }
-            }
+            headerView()
             .padding(.horizontal)
 
             ScrollViewReader { proxy in
@@ -85,6 +71,30 @@ struct HomeView: View {
             }
         }
         .frame(width: UIScreen.main.bounds.width)
+    }
+    
+    @ViewBuilder
+    private func headerView() -> some View {
+        HStack {
+            Button {
+                viewModel.scrollToPreviousWeek()
+            } label: {
+                Image(systemName: "chevron.left")
+            }
+            
+            Spacer()
+            
+            Text(viewModel.selectedDate.monthAndDay())
+                .font(.headline)
+            
+            Spacer()
+            
+            Button {
+                viewModel.scrollToNextWeek()
+            } label: {
+                Image(systemName: "chevron.right")
+            }
+        }
     }
 }
 
