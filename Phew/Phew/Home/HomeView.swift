@@ -28,7 +28,6 @@ struct HomeView: View {
                 .scrollTargetBehavior(.paging)
                 .onChange(of: viewModel.currentIndex) { oldValue, newValue in
                     withAnimation {
-                        print(newValue, oldValue)
                         proxy.scrollTo(newValue, anchor: .center)
                     }
                 }
@@ -38,6 +37,9 @@ struct HomeView: View {
             }
             
             Spacer()
+            
+            HomeDetailPageViewController(selectedDate: $viewModel.selectedDate)
+                .frame(maxHeight: .infinity)
         }
     }
     
@@ -103,7 +105,13 @@ extension HomeView {
     final class HomeViewModel {
         var weeks: [[Date]] = []
         var currentIndex: Int = 2
-        var selectedDate: Date = .now
+        var selectedDate: Date = .now {
+            didSet {
+                if let newIndex = indexForWeek(containing: selectedDate) {
+                    currentIndex = newIndex
+                }
+            }
+        }
 
         private let calendar = Calendar.current
         private let initialWeekOffset = 2
@@ -161,6 +169,15 @@ extension HomeView {
 
         private func addWeeks(to startDate: Date, by offset: Int) -> Date {
             calendar.date(byAdding: .weekOfYear, value: offset, to: startDate)!
+        }
+        
+        private func indexForWeek(containing date: Date) -> Int? {
+            for (i, week) in weeks.enumerated() {
+                if week.contains(where: { Calendar.current.isDate($0, inSameDayAs: date) }) {
+                    return i
+                }
+            }
+            return nil
         }
     }
 }
