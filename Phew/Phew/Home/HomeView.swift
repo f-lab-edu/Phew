@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct HomeView: View {
-    @State private var viewModel = HomeViewModel()
+    @State private var viewModel: HomeViewModel
 
     var body: some View {
         VStack {
-            headerView()
+            calendarHeaderView()
             .padding(.horizontal)
 
             ScrollViewReader { proxy in
@@ -38,9 +39,14 @@ struct HomeView: View {
             
             Spacer()
             
-            HomeDetailPageViewController(selectedDate: $viewModel.selectedDate)
+            SelectedDateDetailPageViewController(selectedDate: $viewModel.selectedDate)
                 .frame(maxHeight: .infinity)
         }
+    }
+    
+    init(modelContext: ModelContext) {
+        let viewModel = HomeViewModel(modelContext: modelContext)
+        _viewModel = State(initialValue: viewModel)
     }
     
     @ViewBuilder
@@ -76,8 +82,8 @@ struct HomeView: View {
     }
     
     @ViewBuilder
-    private func headerView() -> some View {
-        HStack {
+    private func calendarHeaderView() -> some View {
+        HStack(spacing: 0) {
             Button {
                 viewModel.scrollToPreviousWeek()
             } label: {
@@ -103,6 +109,7 @@ struct HomeView: View {
 extension HomeView {
     @Observable
     final class HomeViewModel {
+        var modelContext: ModelContext
         var weeks: [[Date]] = []
         var currentIndex: Int = 2
         var selectedDate: Date = .now {
@@ -116,15 +123,15 @@ extension HomeView {
         private let calendar = Calendar.current
         private let initialWeekOffset = 2
         
-        init() {
+        init(modelContext: ModelContext) {
+            self.modelContext = modelContext
+            
             let today = Date()
             let baseStart = today.startOfWeek()
 
             weeks = (-initialWeekOffset...initialWeekOffset).map { offset in
                 generateWeek(from: addWeeks(to: baseStart, by: offset))
             }
-
-            currentIndex = initialWeekOffset
         }
 
         func scrollToPreviousWeek() {
@@ -183,5 +190,7 @@ extension HomeView {
 }
 
 #Preview {
-    HomeView()
+    let container = try! ModelContainer(for: DailyRoutineLog.self)
+    
+    HomeView(modelContext: container.mainContext)
 }

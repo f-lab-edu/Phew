@@ -1,5 +1,5 @@
 //
-//  HomeDetailPageViewController.swift
+//  SelectedDateDetailPageViewController.swift
 //  Phew
 //
 //  Created by dong eun shin on 4/25/25.
@@ -7,20 +7,7 @@
 
 import SwiftUI
 
-struct DetailPageView: View {
-    let date: Date
-
-    var body: some View {
-        VStack {
-            Text("selected date: \(date)")
-                .font(.title)
-                .padding()
-            Spacer()
-        }
-    }
-}
-
-struct HomeDetailPageViewController: UIViewControllerRepresentable {
+struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
     @Binding var selectedDate: Date
     
     func makeCoordinator() -> Coordinator {
@@ -42,16 +29,16 @@ struct HomeDetailPageViewController: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ pageViewController: UIPageViewController, context: Context) {
-        let oldDate = context.coordinator.previousDate
+        let previousDate = context.coordinator.previousDate
         let newVC = context.coordinator.viewController(for: selectedDate)
         
-        guard !Calendar.current.isDate(selectedDate, inSameDayAs: oldDate) else {
+        guard !Calendar.current.isDate(selectedDate, inSameDayAs: previousDate) else {
             return
         }
         
         pageViewController.setViewControllers(
             [newVC],
-            direction: selectedDate > oldDate ? .forward : .reverse,
+            direction: selectedDate > previousDate ? .forward : .reverse,
             animated: context.coordinator.isUserInteraction ? false : true
         )
         
@@ -60,18 +47,18 @@ struct HomeDetailPageViewController: UIViewControllerRepresentable {
     }
 
     class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
-        var parent: HomeDetailPageViewController
+        var parent: SelectedDateDetailPageViewController
         var previousDate: Date
         var isUserInteraction = false
 
 
-        init(_ parent: HomeDetailPageViewController) {
+        init(_ parent: SelectedDateDetailPageViewController) {
             self.parent = parent
             self.previousDate = parent.selectedDate
         }
 
         func viewController(for date: Date) -> UIViewController {
-            let vc = UIHostingController(rootView: DetailPageView(date: date))
+            let vc = UIHostingController(rootView: SelectedDateDetailPageView(date: date))
             vc.view.tag = Int(date.timeIntervalSince1970)
             
             return vc

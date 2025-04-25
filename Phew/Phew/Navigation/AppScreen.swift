@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     case calendar
@@ -29,10 +30,10 @@ extension AppScreen {
     }
     
     @ViewBuilder
-    var destination: some View {
+    func destination(context: ModelContext) -> some View {
         switch self {
         case .calendar:
-            HomeView()
+            HomeView(modelContext: context)
         case .status:
             StatusView()
         case .account:

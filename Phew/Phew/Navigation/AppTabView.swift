@@ -6,14 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AppTabView: View {
     @Binding var selection: AppScreen?
     
+    let context: ModelContext
+    
     var body: some View {
         TabView(selection: $selection) {
             ForEach(AppScreen.allCases) { screen in
-                screen.destination
+                screen.destination(context: context)
                     .tag(screen as AppScreen?)
                     .tabItem { screen.label }
             }

@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct PhewApp: App {
+    let container: ModelContainer
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(context: container.mainContext)
+                .modelContainer(container)
+        }
+    }
+    
+    init() {
+        do {
+            container = try ModelContainer(for: DailyRoutineLog.self)
+        } catch {
+            fatalError("Failed to create container")
         }
     }
 }
