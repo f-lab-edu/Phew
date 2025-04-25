@@ -22,7 +22,7 @@ struct DetailPageView: View {
 
 struct HomeDetailPageViewController: UIViewControllerRepresentable {
     @Binding var selectedDate: Date
-
+    
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
@@ -33,7 +33,7 @@ struct HomeDetailPageViewController: UIViewControllerRepresentable {
             navigationOrientation: .horizontal
         )
         let initialVC = context.coordinator.viewController(for: selectedDate)
-        
+
         pvc.setViewControllers([initialVC], direction: .forward, animated: false)
         pvc.dataSource = context.coordinator
         pvc.delegate = context.coordinator
@@ -44,19 +44,26 @@ struct HomeDetailPageViewController: UIViewControllerRepresentable {
     func updateUIViewController(_ pageViewController: UIPageViewController, context: Context) {
         let oldDate = context.coordinator.previousDate
         let newVC = context.coordinator.viewController(for: selectedDate)
-
+        
+        guard !Calendar.current.isDate(selectedDate, inSameDayAs: oldDate) else {
+            return
+        }
+        
         pageViewController.setViewControllers(
             [newVC],
             direction: selectedDate > oldDate ? .forward : .reverse,
-            animated: true
+            animated: context.coordinator.isUserInteraction ? false : true
         )
         
         context.coordinator.previousDate = selectedDate
+        context.coordinator.isUserInteraction = false
     }
 
     class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
         var parent: HomeDetailPageViewController
         var previousDate: Date
+        var isUserInteraction = false
+
 
         init(_ parent: HomeDetailPageViewController) {
             self.parent = parent
@@ -66,18 +73,23 @@ struct HomeDetailPageViewController: UIViewControllerRepresentable {
         func viewController(for date: Date) -> UIViewController {
             let vc = UIHostingController(rootView: DetailPageView(date: date))
             vc.view.tag = Int(date.timeIntervalSince1970)
+            
             return vc
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
             let currentDate = Date(timeIntervalSince1970: TimeInterval(viewController.view.tag))
+            
             guard let previous = Calendar.current.date(byAdding: .day, value: -1, to: currentDate) else { return nil }
+            
             return self.viewController(for: previous)
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
             let currentDate = Date(timeIntervalSince1970: TimeInterval(viewController.view.tag))
+            
             guard let next = Calendar.current.date(byAdding: .day, value: 1, to: currentDate) else { return nil }
+            
             return self.viewController(for: next)
         }
         
@@ -89,7 +101,13 @@ struct HomeDetailPageViewController: UIViewControllerRepresentable {
 
             let newDate = Date(timeIntervalSince1970: TimeInterval(currentVC.view.tag))
             
-            self.parent.selectedDate = newDate
+            if !Calendar.current.isDate(newDate, inSameDayAs: parent.selectedDate) {
+                self.parent.selectedDate = newDate
+            }
+        }
+        
+        func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+            isUserInteraction = true
         }
     }
 }
