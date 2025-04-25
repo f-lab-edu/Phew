@@ -32,7 +32,7 @@ extension AppScreen {
     var destination: some View {
         switch self {
         case .calendar:
-            CalendarMainView()
+            HomeView()
         case .status:
             StatusView()
         case .account:
