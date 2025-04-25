@@ -1,5 +1,5 @@
 //
-//  CalendarMainView.swift
+//  HomeView.swift
 //  Phew
 //
 //  Created by dong eun shin on 4/23/25.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct CalendarMainView: View {
+struct HomeView: View {
     @State private var selectedDate: Date = Date()
     
     let weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
@@ -66,5 +66,5 @@ struct CalendarMainView: View {
 
 
 #Preview {
-    CalendarMainView()
+    HomeView()
 }
