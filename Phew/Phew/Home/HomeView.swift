@@ -8,62 +8,152 @@
 import SwiftUI
 
 struct HomeView: View {
-    @State private var selectedDate: Date = Date()
-    
-    let weekdays = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"]
-    let weeks: [[Date]]
-
-    init() {
-        self.weeks = DateHelper.generateWeeks(startingFrom: Date(), weeksBefore: 1, weeksAfter: 12)
-    }
+    @State private var viewModel = HomeViewModel()
 
     var body: some View {
-        NavigationStack {
-            VStack {
-                HStack(spacing: 12) {
-                    ForEach(0..<7, id: \.self) { index in
-                        Text(weekdays[index])
-                            .font(.caption)
-                            .frame(width: 40)
-                            .foregroundColor(.gray)
-                    }
+        VStack {
+            HStack {
+                Button {
+                    viewModel.scrollToPreviousWeek()
+                } label: {
+                    Image(systemName: "chevron.left")
                 }
-                
-                GeometryReader { geometry in
-                    ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            LazyHStack(spacing: 0) {
-                                ForEach(Array(weeks.enumerated()), id: \.element) { index, week in
-                                    HStack(spacing: 12) {
-                                        ForEach(week, id: \.self) { date in
-                                            Text(DateHelper.dayString(from: date))
-                                                .frame(width: 40, height: 40)
-                                                .background(Calendar.current.isDate(date, inSameDayAs: selectedDate) ? Color.green : Color.gray.opacity(0.2))
-                                                .clipShape(Circle())
-                                                .onTapGesture {
-                                                    selectedDate = date
-                                                }
-                                        }
-                                    }
-                                    .frame(width: geometry.size.width)
-                                    .id(index)
-                                }
-                            }
-                        }
-                        .scrollTargetBehavior(.paging)
-                        .onAppear {
-                            proxy.scrollTo(1, anchor: .leading)
-                        }
-                    }
-                }
-                .frame(height: 40)
                 
                 Spacer()
+                
+                Button {
+                    viewModel.scrollToNextWeek()
+                } label: {
+                    Image(systemName: "chevron.right")
+                }
+            }
+            .padding(.horizontal)
+
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 0) {
+                        ForEach(viewModel.weeks.indices, id: \.self) { index in
+                            weekView(for: viewModel.weeks[index])
+                                .id(index)
+                        }
+                    }
+                }
+                .frame(height: 80)
+                .scrollTargetBehavior(.paging)
+                .onChange(of: viewModel.currentIndex) { oldValue, newValue in
+                    withAnimation {
+                        print(newValue, oldValue)
+                        proxy.scrollTo(newValue, anchor: .center)
+                    }
+                }
+                .onAppear {
+                    proxy.scrollTo(viewModel.currentIndex, anchor: .center)
+                }
+            }
+            
+            Spacer()
+        }
+    }
+    
+    @ViewBuilder
+    private func weekView(for week: [Date]) -> some View {
+        HStack(spacing: 0) {
+            ForEach(week, id: \.self) { date in
+                VStack {
+                    Text(date.dayOfWeek())
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .padding(2)
+                    
+                    Text(date.dayOfMonth())
+                        .font(.title3)
+                        .foregroundColor(Calendar.current.isDateInToday(date) ? .blue : .primary)
+                        .frame(width: 40, height: 40)
+                        .background(
+                            Circle()
+                                .fill(
+                                    Calendar.current.isDate(date, inSameDayAs: viewModel.selectedDate)
+                                    ? Color.green
+                                    : Color.gray.opacity(0.2)
+                                )
+                        )
+                        .onTapGesture {
+                            viewModel.selectedDate = date
+                        }
+                }
+                .frame(maxWidth: .infinity)
             }
         }
+        .frame(width: UIScreen.main.bounds.width)
     }
 }
 
+extension HomeView {
+    @Observable
+    final class HomeViewModel {
+        var weeks: [[Date]] = []
+        var currentIndex: Int = 2
+        var selectedDate: Date = .now
+
+        private let calendar = Calendar.current
+        private let initialWeekOffset = 2
+        
+        init() {
+            let today = Date()
+            let baseStart = today.startOfWeek()
+
+            weeks = (-initialWeekOffset...initialWeekOffset).map { offset in
+                generateWeek(from: addWeeks(to: baseStart, by: offset))
+            }
+
+            currentIndex = initialWeekOffset
+        }
+
+        func scrollToPreviousWeek() {
+            if currentIndex - 1 < initialWeekOffset {
+                prependWeeks()
+            }
+            
+            currentIndex -= 1
+        }
+
+        func scrollToNextWeek() {
+            if currentIndex + 1 > weeks.count - 3 {
+                appendWeeks()
+            }
+            
+            currentIndex += 1
+        }
+        
+        private func prependWeeks() {
+            guard let firstDate = weeks.first?.first else { return }
+
+            let newWeeks = generateWeek(from: addWeeks(to: firstDate, by: -1))
+
+            weeks.insert(newWeeks, at: 0)
+            
+            currentIndex += 1
+        }
+
+        private func appendWeeks() {
+            guard let lastDate = weeks.last?.first else { return }
+
+            let newWeeks = generateWeek(from: addWeeks(to: lastDate, by: 1))
+
+            weeks.append(newWeeks)
+        }
+
+        private func generateWeek(from startDate: Date) -> [Date] {
+            (0..<7).compactMap {
+                calendar.date(byAdding: .day, value: $0, to: startDate)
+            }
+        }
+
+        private func addWeeks(to startDate: Date, by offset: Int) -> Date {
+            calendar.date(byAdding: .weekOfYear, value: offset, to: startDate)!
+        }
+    }
+}
 
 #Preview {
     HomeView()
