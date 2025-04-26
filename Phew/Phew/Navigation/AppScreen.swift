@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     case calendar

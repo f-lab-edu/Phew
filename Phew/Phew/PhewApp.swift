@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct PhewApp: App {
@@ -13,5 +14,6 @@ struct PhewApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: DailyRoutineLog.self, inMemory: true)
     }
 }
