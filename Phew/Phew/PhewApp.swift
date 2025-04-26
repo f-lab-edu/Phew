@@ -10,20 +10,10 @@ import SwiftData
 
 @main
 struct PhewApp: App {
-    let container: ModelContainer
-    
     var body: some Scene {
         WindowGroup {
-            ContentView(context: container.mainContext)
-                .modelContainer(container)
+            ContentView()
         }
-    }
-    
-    init() {
-        do {
-            container = try ModelContainer(for: DailyRoutineLog.self)
-        } catch {
-            fatalError("Failed to create container")
-        }
+        .modelContainer(for: DailyRoutineLog.self, inMemory: true)
     }
 }

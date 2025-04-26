@@ -10,16 +10,15 @@ import SwiftData
 
 struct ContentView: View {
     @State private var selection: AppScreen? = .calendar
-
-    let context: ModelContext
+    @State var viewModel = HomeViewModel()
     
     var body: some View {
-        AppTabView(selection: $selection, context: context)
+        AppTabView(selection: $selection)
+            .environment(HomeViewModel())
     }
 }
 
 #Preview {
-    let container = try! ModelContainer(for: DailyRoutineLog.self)
-    
-    ContentView(context: container.mainContext)
+    ContentView()
+        .environment(HomeViewModel())
 }

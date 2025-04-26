@@ -31,6 +31,12 @@ extension Date {
         formatter.dateFormat = "MMM d"
         return formatter.string(from: self)
     }
+    
+    func generateWeek() -> [Date] {
+        (0..<7).compactMap {
+            Calendar.current.date(byAdding: .day, value: $0, to: self)
+        }
+    }
 }
 
 extension Array {

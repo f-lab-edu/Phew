@@ -30,10 +30,10 @@ extension AppScreen {
     }
     
     @ViewBuilder
-    func destination(context: ModelContext) -> some View {
+    var destination: some View {
         switch self {
         case .calendar:
-            HomeView(modelContext: context)
+            HomeView()
         case .status:
             StatusView()
         case .account:

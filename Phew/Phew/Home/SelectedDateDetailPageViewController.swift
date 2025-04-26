@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
-    @Binding var selectedDate: Date
+    @Environment(HomeViewModel.self) var viewModel
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -19,7 +19,7 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             transitionStyle: .scroll,
             navigationOrientation: .horizontal
         )
-        let initialVC = context.coordinator.viewController(for: selectedDate)
+        let initialVC = context.coordinator.viewController(for: viewModel.selectedDate)
 
         pvc.setViewControllers([initialVC], direction: .forward, animated: false)
         pvc.dataSource = context.coordinator
@@ -30,19 +30,19 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
 
     func updateUIViewController(_ pageViewController: UIPageViewController, context: Context) {
         let previousDate = context.coordinator.previousDate
-        let newVC = context.coordinator.viewController(for: selectedDate)
+        let newVC = context.coordinator.viewController(for: viewModel.selectedDate)
         
-        guard !Calendar.current.isDate(selectedDate, inSameDayAs: previousDate) else {
+        guard !Calendar.current.isDate(viewModel.selectedDate, inSameDayAs: previousDate) else {
             return
         }
         
         pageViewController.setViewControllers(
             [newVC],
-            direction: selectedDate > previousDate ? .forward : .reverse,
+            direction: viewModel.selectedDate > previousDate ? .forward : .reverse,
             animated: context.coordinator.isUserInteraction ? false : true
         )
         
-        context.coordinator.previousDate = selectedDate
+        context.coordinator.previousDate = viewModel.selectedDate
         context.coordinator.isUserInteraction = false
     }
 
@@ -50,11 +50,13 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         var parent: SelectedDateDetailPageViewController
         var previousDate: Date
         var isUserInteraction = false
+        let viewModel: HomeViewModel
 
 
         init(_ parent: SelectedDateDetailPageViewController) {
             self.parent = parent
-            self.previousDate = parent.selectedDate
+            self.previousDate = parent.viewModel.selectedDate
+            self.viewModel = parent.viewModel
         }
 
         func viewController(for date: Date) -> UIViewController {
@@ -88,8 +90,16 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
 
             let newDate = Date(timeIntervalSince1970: TimeInterval(currentVC.view.tag))
             
-            if !Calendar.current.isDate(newDate, inSameDayAs: parent.selectedDate) {
-                self.parent.selectedDate = newDate
+            if !Calendar.current.isDate(newDate, inSameDayAs: parent.viewModel.selectedDate) {
+                parent.viewModel.selectedDate = newDate
+                
+                if
+                    let weekStartDate = Calendar.current.dateInterval(of: .weekOfYear, for: newDate)?.start,
+                    !Calendar.current.isDate(weekStartDate, inSameDayAs: parent.viewModel.currentWeekStartDate)
+                {
+                    parent.viewModel.swipeDirection = newDate > parent.viewModel.selectedDate ? .forward : .reverse
+                    parent.viewModel.currentWeekStartDate = weekStartDate
+                }
             }
         }
         
