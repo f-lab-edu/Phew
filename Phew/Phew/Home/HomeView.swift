@@ -26,7 +26,7 @@ struct HomeView: View {
     
     @ViewBuilder
     private func calendarHeaderView() -> some View {
-        HStack(alignment: .center){
+        HStack(alignment: .center) {
             Text(viewModel.selectedDate.monthAndDay())
                 .font(.headline)
         }
