@@ -14,6 +14,6 @@ struct PhewApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: DailyRoutineLog.self, inMemory: true)
+        .modelContainer(for: DailyRoutineRecord.self, inMemory: true)
     }
 }

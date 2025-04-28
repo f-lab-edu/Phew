@@ -8,30 +8,17 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct Routine: Identifiable {
-    let id = UUID()
-    let title: String
-    let description: String
-    let imageName: String
-
-    /// 사용자의 응답 타입
-    let responseType: ResponseType
-
-    enum ResponseType {
-        case text
-        case score
-        case none
-    }
-}
-
 struct RoutineView: View {
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Bindable var store: StoreOf<RoutineFeature>
     @State private var answerText: String = ""
     @State private var selectedScore = 3.0
     @FocusState var focused: Bool
     
-    let routineList: [Routine]
+    let date: Date
+    let dailyRoutineType: DailyRoutineType
+    let dailyRoutineTasks: [DailyRoutineTask]
         
     var body: some View {
         VStack() {
@@ -51,24 +38,53 @@ struct RoutineView: View {
             
             ZStack(alignment: .bottomTrailing) {
                 GeometryReader { geometry in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        LazyHStack(spacing: 0) {
-                            ForEach(Array(routineList.enumerated()), id: \.offset) { index, routine in
-                                pageView(for: routine, answerText: $answerText, selectedScore: $selectedScore)
+                    ScrollViewReader { proxy in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            LazyHStack(spacing: 0) {
+                                ForEach(Array(dailyRoutineTasks.enumerated()), id: \.offset) { index, task in
+                                    pageView(
+                                        for: task,
+                                        answerText: $answerText,
+                                        selectedScore: $selectedScore,
+                                        focued: $focused
+                                    )
+                                    .frame(width: geometry.size.width)
+                                    .tag(index)
+                                }
+                            }
+                        }
+                        .scrollTargetBehavior(.paging)
+                        .onChange(of: store.selectedIndex) { oldValue, newValue in
+                            let task = dailyRoutineTasks[newValue]
+                            focused = task.taskType == .question ? true : false
+                            
+                            withAnimation {
+                                proxy.scrollTo(newValue, anchor: .center)
                             }
                         }
                     }
-                    .scrollTargetBehavior(.paging)
                 }
                 
                 HStack {
                     Spacer()
                     
                     Button(action: {
-                        if store.selectedIndex < routineList.count - 1 {
+                        if store.selectedIndex < dailyRoutineTasks.count - 1 {
                             store.send(.nextButtonTapped)
                         } else {
-                            store.send(.doneButtonTapped(answer: answerText))
+//                            store.send(
+//                                .doneButtonTapped(
+//                                    date: date,
+//                                    dailyRoutineType: dailyRoutineType
+//                                )
+//                            )
+                            
+                            let routineLog = DailyRoutineRecord(
+                                date: date,
+                                dailyRoutineType: dailyRoutineType,
+                                responses: []
+                            )
+                            modelContext.insert(routineLog)
                             
                             dismiss()
                         }
@@ -88,14 +104,15 @@ struct RoutineView: View {
     
     @ViewBuilder
     private func pageView(
-        for routine: Routine,
+        for task: DailyRoutineTask,
         answerText: Binding<String>,
         selectedScore: Binding<Double>,
+        focued: FocusState<Bool>.Binding
     ) -> some View {
-        switch routine.responseType {
-        case .text:
+        switch task.taskType {
+        case .question:
             VStack(alignment: .leading, spacing: 0) {
-                Text(routine.title)
+                Text(task.title)
                     .font(.title2)
                     .fontWeight(.semibold)
                     .foregroundColor(.primary)
@@ -106,21 +123,21 @@ struct RoutineView: View {
                     .scrollContentBackground(.hidden)
                     .border(.gray.opacity(0.2), width: 2)
                     .padding(.horizontal)
-//                    .focused($focused)
+                    .focused($focused)
             }
-        case .score:
+        case .slider:
             VStack(spacing: 20) {
-                Image(systemName: routine.imageName)
+                Image(systemName: task.imageName ?? "")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 100)
                     .padding()
                 
-                Text(routine.title)
+                Text(task.title)
                     .font(.title)
                     .bold()
                 
-                Text(routine.description)
+                Text(task.subTitle ?? "")
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                 
@@ -132,57 +149,37 @@ struct RoutineView: View {
                 .tint(.green)
                 .frame(width: 250)
             }
-        case .none:
+        case .quote:
             VStack(spacing: 20) {
-                Image(systemName: routine.imageName)
+                Image(systemName: task.imageName ?? "")
                     .resizable()
                     .scaledToFit()
                     .frame(height: 100)
                     .padding()
                 
-                Text(routine.title)
+                Text(task.title)
                     .font(.title)
                     .bold()
                 
-                Text(routine.description)
+                Text(task.subTitle ?? "")
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
         }
     }
-    
-    private func updateFocus(for routine: Routine) {
-        if routine.responseType == .text {
-
-        } else {
-            UIApplication.shared.hideKeyboard()
-        }
-    }
 }
     
 #Preview {
-    RoutineView(store: Store(initialState: RoutineFeature.State.init(mode: .morning)) {
+    RoutineView(
+        store: Store(initialState: RoutineFeature.State.init(mode: .morning)) {
         RoutineFeature()
     },
-        routineList:[
-            Routine(
-                title: "1",
-                description: "1",
-                imageName: "heart",
-                responseType: .text
-            ),
-            Routine(
-                title: "2",
-                description: "2",
-                imageName: "heart",
-                responseType: .score
-            ),
-            Routine(
-                title: "3",
-                description: "3",
-                imageName: "heart",
-                responseType: .none
-            )
+        date: .now,
+        dailyRoutineType: .morning,
+        dailyRoutineTasks: [
+            DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
+            DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
+            DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
         ]
     )
 }

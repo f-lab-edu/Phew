@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftData
 import ComposableArchitecture
+import Dependencies
 
 @Reducer
 struct RoutineFeature {
@@ -26,11 +27,9 @@ struct RoutineFeature {
     enum Action {
         case nextButtonTapped
         case backButtonTapped
-        case doneButtonTapped(answer: String)
+        case doneButtonTapped(date: Date, dailyRoutineType: DailyRoutineType)
     }
     
-    @Environment(\.modelContext) var modelContext
-
     func reduce(into state: inout State, action: Action) -> Effect<Action> {
         switch action {
         case .nextButtonTapped:
@@ -39,9 +38,8 @@ struct RoutineFeature {
         case .backButtonTapped:
             state.selectedIndex -= 1
             return .none
-        case .doneButtonTapped(let answer):
-//            let routineLog = RoutineLog(date: Date(), text: answer)
-//            modelContext.insert(routineLog)
+        case .doneButtonTapped(let date, let dailyRoutineType):
+            // 루틴 데이터 저장 로직
             return .none
         }
     }

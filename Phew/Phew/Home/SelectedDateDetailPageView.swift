@@ -7,8 +7,11 @@
 
 import SwiftUI
 import ComposableArchitecture
+import SwiftData
 
 struct SelectedDateDetailPageView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(HomeViewModel.self) var viewModel
     @State private var isPresenting = false
     
     let date: Date
@@ -16,16 +19,46 @@ struct SelectedDateDetailPageView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                routineView()
+                Group {
+                    if let _ = viewModel.currentMorningRoutine {
+                        Button {
+                            isPresenting = true
+                        } label: {
+                            VStack {
+                                Text("\(date.monthAndDay()) 데이터 있음")
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 150)
+                            .background(.gray)
+                            .foregroundColor(.white)
+                        }
+                        .padding()
+                    } else {
+                        routineView(dailyRoutineType: .morning, date: date)
+                    }
+                }
+                .onAppear {
+                    viewModel.fetchRecord(
+                        date: date,
+                        dailyRoutineType: .morning,
+                        context: modelContext
+                    )
+                }
                 
-                routineView()
+                routineView(dailyRoutineType: .night, date: date)
             }
+            
+            // 날짜 확인용
+            Text(date.monthAndDay())
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+                .padding(.horizontal)
         }
         .frame(maxHeight: .infinity, alignment: .top)
     }
     
     @ViewBuilder
-    func routineView() -> some View {
+    func routineView(dailyRoutineType: DailyRoutineType, date: Date) -> some View {
         Button {
             isPresenting = true
         } label: {
@@ -42,14 +75,16 @@ struct SelectedDateDetailPageView: View {
         }
         .padding()
         .sheet(isPresented: $isPresenting) {
-            RoutineView(store: Store(initialState: RoutineFeature.State.init(mode: .morning)) {
-                RoutineFeature()
-            },
-               routineList: [
-                Routine(title: "1", description: "1", imageName: "heart", responseType: .text),
-                Routine(title: "2", description: "2", imageName: "heart", responseType: .score),
-                Routine(title: "3", description: "3", imageName: "heart", responseType: .none)
-               ]
+            RoutineView(
+                store: Store(initialState: RoutineFeature.State.init(mode: .morning)) { RoutineFeature() },
+                date: date,
+                dailyRoutineType: dailyRoutineType,
+                dailyRoutineTasks: [
+                    // 임시 데이터
+                    DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
+                    DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
+                    DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
+                ]
             )
         }
     }
