@@ -20,7 +20,7 @@ struct SelectedDateDetailPageView: View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
                 Group {
-                    if let _ = viewModel.currentMorningRoutine {
+                    if viewModel.currentMorningRoutine != nil {
                         Button {
                             isPresenting = true
                         } label: {
@@ -33,18 +33,17 @@ struct SelectedDateDetailPageView: View {
                         }
                         .padding()
                     } else {
-                        routineView(dailyRoutineType: .morning, date: date)
+                        routineButton(dailyRoutineType: .morning, date: date)
                     }
                 }
                 .onAppear {
                     viewModel.fetchRecord(
-                        date: date,
                         dailyRoutineType: .morning,
                         context: modelContext
                     )
                 }
                 
-                routineView(dailyRoutineType: .night, date: date)
+                routineButton(dailyRoutineType: .night, date: date)
             }
             
             // 날짜 확인용
@@ -58,7 +57,7 @@ struct SelectedDateDetailPageView: View {
     }
     
     @ViewBuilder
-    func routineView(dailyRoutineType: DailyRoutineType, date: Date) -> some View {
+    func routineButton(dailyRoutineType: DailyRoutineType, date: Date) -> some View {
         Button {
             isPresenting = true
         } label: {

@@ -91,14 +91,14 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             let newDate = Date(timeIntervalSince1970: TimeInterval(currentVC.view.tag))
             
             if !Calendar.current.isDate(newDate, inSameDayAs: parent.viewModel.selectedDate) {
-                parent.viewModel.selectedDate = newDate
+                viewModel.selectedDate = newDate
                 
                 if
                     let weekStartDate = Calendar.current.dateInterval(of: .weekOfYear, for: newDate)?.start,
                     !Calendar.current.isDate(weekStartDate, inSameDayAs: parent.viewModel.currentWeekStartDate)
                 {
-                    parent.viewModel.swipeDirection = newDate > parent.viewModel.selectedDate ? .forward : .reverse
-                    parent.viewModel.currentWeekStartDate = weekStartDate
+                    viewModel.swipeDirection = newDate > parent.viewModel.selectedDate ? .forward : .reverse
+                    viewModel.currentWeekStartDate = weekStartDate
                 }
             }
         }

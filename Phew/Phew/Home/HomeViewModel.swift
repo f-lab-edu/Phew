@@ -31,9 +31,9 @@ final class HomeViewModel {
         }
     }
     
-    func fetchRecord(date: Date, dailyRoutineType: DailyRoutineType, context: ModelContext) {
+    func fetchRecord(dailyRoutineType: DailyRoutineType, context: ModelContext) {
         let id = DailyRoutineRecord.makeID(
-            date: date,
+            date: selectedDate,
             dailyRoutineType: .morning
         )
         let descriptor = FetchDescriptor<DailyRoutineRecord>(

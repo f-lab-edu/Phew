@@ -123,7 +123,7 @@ struct RoutineView: View {
                     .scrollContentBackground(.hidden)
                     .border(.gray.opacity(0.2), width: 2)
                     .padding(.horizontal)
-                    .focused($focused)
+//                    .focused($focused)
             }
         case .slider:
             VStack(spacing: 20) {
