@@ -8,9 +8,11 @@
 import Foundation
 import SwiftData
 
-enum DailyRoutineType: String, Codable {
+enum DailyRoutineType: String, Codable, Identifiable {
     case morning
     case night
+    
+    var id: String { self.rawValue }
 }
 
 @Model

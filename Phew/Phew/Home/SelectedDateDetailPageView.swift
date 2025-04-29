@@ -10,7 +10,7 @@ import ComposableArchitecture
 import SwiftData
 
 struct SelectedDateDetailPageView: View {
-    @State private var isPresenting = false
+    @State private var presentedRoutineSheet: DailyRoutineType?
     @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
     let store: StoreOf<HomeFeature>
     let date: Date
@@ -44,7 +44,7 @@ struct SelectedDateDetailPageView: View {
             Group {
                 if viewStore.state.morningDailyRoutineRecord != nil {
                     Button {
-                        isPresenting = true
+                        // 저장한 루틴 디데일 화면
                     } label: {
                         VStack {
                             Text("\(date.monthAndDay()) 데이터 있음")
@@ -62,7 +62,7 @@ struct SelectedDateDetailPageView: View {
             Group {
                 if viewStore.state.nightDailyRoutineRecord != nil {
                     Button {
-                        isPresenting = true
+                        // 저장한 루틴 디데일 화면
                     } label: {
                         VStack {
                             Text("\(date.monthAndDay()) 데이터 있음")
@@ -82,7 +82,7 @@ struct SelectedDateDetailPageView: View {
     @ViewBuilder
     func routineButton(dailyRoutineType: DailyRoutineType) -> some View {
         Button {
-            isPresenting = true
+            presentedRoutineSheet = dailyRoutineType
         } label: {
             VStack {
                 Image(systemName: "heart")
@@ -96,15 +96,15 @@ struct SelectedDateDetailPageView: View {
             .foregroundColor(.white)
         }
         .padding()
-        .sheet(isPresented: $isPresenting) {
+        .sheet(item: $presentedRoutineSheet) { routineType in
             RoutineView(
                 store: Store(
-                    initialState: RoutineFeature.State.init(dailyRoutineType: dailyRoutineType)
+                    initialState: RoutineFeature.State.init(dailyRoutineType: routineType)
                 ) {
                     RoutineFeature()
                 },
                 date: date,
-                dailyRoutineType: dailyRoutineType,
+                dailyRoutineType: routineType,
                 dailyRoutineTasks: [
                     // 임시 데이터
                     DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
