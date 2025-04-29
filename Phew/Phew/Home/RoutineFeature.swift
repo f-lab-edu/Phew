@@ -24,7 +24,7 @@ struct RoutineFeature {
                 print("+!> ", dailyRoutineRecord.dailyRoutineType)
                 try addDailyRoutine(dailyRoutineRecord)
             } catch {
-                print(">>>>>>RoutineFeature addDailyRoutineRecord 실패")
+                
             }
         }
     }
