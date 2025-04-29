@@ -10,29 +10,25 @@ import SwiftData
 import Dependencies
 
 struct DailyRoutineDatabase {
-    var fetch: @Sendable (FetchDescriptor<DailyRoutineRecord>) throws -> DailyRoutineRecord?
+    var fetchOneBy: @Sendable (_ id: String) throws -> DailyRoutineRecord?
     var add: @Sendable (DailyRoutineRecord) throws -> Void
 }
 
 extension DailyRoutineDatabase: DependencyKey {
     static let liveValue = Self(
-        fetch: { descriptor in
-            do {
-                @Dependency(\.modelContextProvider.context) var context
-                let movieContext = try context()
-                return try movieContext.fetch(descriptor).first
-            } catch {
-                return nil
-            }
-        }, add: { dailyRoutineRecord in
-            do {
-                @Dependency(\.modelContextProvider.context) var context
-                let movieContext = try context()
-                
-                movieContext.insert(dailyRoutineRecord)
-            } catch {
+        fetchOneBy: { id in
+            @Dependency(\.modelContextProvider.context) var context
+            let movieContext = try context()
+            
+            let predicate = #Predicate<DailyRoutineRecord> { $0.id == id }
+            let descriptor = FetchDescriptor<DailyRoutineRecord>(predicate: predicate)
 
-            }
+            return try movieContext.fetch(descriptor).first
+        }, add: { dailyRoutineRecord in
+            @Dependency(\.modelContextProvider.context) var context
+            let movieContext = try context()
+            
+            movieContext.insert(dailyRoutineRecord)
         }
     )
 }

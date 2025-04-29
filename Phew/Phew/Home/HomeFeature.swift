@@ -8,6 +8,9 @@
 import SwiftUI
 import ComposableArchitecture
 import Dependencies
+import OSLog
+
+private let logger = Logger(subsystem: "Phew", category: "HomeFeature")
 
 @Reducer
 struct HomeFeature {
@@ -19,28 +22,6 @@ struct HomeFeature {
         
         var swipeDirection: UIPageViewController.NavigationDirection = .forward
         var currentWeekStartDate: Date = Date().startOfWeek()
-        
-        mutating func fetchDailyRoutineRecord(dailyRoutineType: DailyRoutineType) -> DailyRoutineRecord? {
-            @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
-            
-            do {
-                return try fetchDailyRoutine(selectedDate, dailyRoutineType)
-            } catch {
-                return nil
-            }
-        }
-        
-        mutating func moveToPreviousWeek() {
-            if let previousWeek = Calendar.current.date(byAdding: .day, value: -7, to: currentWeekStartDate) {
-                currentWeekStartDate = previousWeek
-            }
-        }
-
-        mutating func moveToNextWeek() {
-            if let nextWeek = Calendar.current.date(byAdding: .day, value: 7, to: currentWeekStartDate) {
-                currentWeekStartDate = nextWeek
-            }
-        }
     }
 
     enum Action {
@@ -51,28 +32,41 @@ struct HomeFeature {
         case setCurrentWeekStartDate(Date)
         case setSwipeDirection(UIPageViewController.NavigationDirection)
     }
-        
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
-        switch action {
-        case .fetchSelectedDateDailyRoutineRecord:
-            state.morningDailyRoutineRecord = state.fetchDailyRoutineRecord(dailyRoutineType: .morning)
-            state.nightDailyRoutineRecord = state.fetchDailyRoutineRecord(dailyRoutineType: .night)
-            return .none
-        case .moveToPreviousWeek:
-            state.moveToPreviousWeek()
-            return .none
-        case .moveToNextWeek:
-            state.moveToNextWeek()
-            return .none
-        case .selectedDate(let date):
-            state.selectedDate = date
-            return .none
-        case .setCurrentWeekStartDate(let date):
-            state.currentWeekStartDate = date
-            return .none
-        case .setSwipeDirection(let direction):
-            state.swipeDirection = direction
-            return .none
+    
+    var body: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+            case .fetchSelectedDateDailyRoutineRecord:
+                @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
+                
+                do {
+                    state.morningDailyRoutineRecord = try fetchDailyRoutine(state.selectedDate, .morning)
+                    state.nightDailyRoutineRecord = try fetchDailyRoutine(state.selectedDate, .night)
+                } catch {
+                    // 에러 처리
+                }
+                return .none
+            case .moveToPreviousWeek:
+                if let previousWeek = Calendar.current.date(byAdding: .day, value: -7, to: state.currentWeekStartDate) {
+                    state.currentWeekStartDate = previousWeek
+                }
+                return .none
+            case .moveToNextWeek:
+                if let nextWeek = Calendar.current.date(byAdding: .day, value: 7, to: state.currentWeekStartDate) {
+                    state.currentWeekStartDate = nextWeek
+                }
+                return .none
+            case .selectedDate(let date):
+                state.selectedDate = date
+                logger.debug("Selected Date: \(date)")
+                return .none
+            case .setCurrentWeekStartDate(let date):
+                state.currentWeekStartDate = date
+                return .none
+            case .setSwipeDirection(let direction):
+                state.swipeDirection = direction
+                return .none
+            }
         }
     }
 }

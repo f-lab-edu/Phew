@@ -20,13 +20,11 @@ extension DailyRoutineRepository: DependencyKey {
             @Dependency(\.dailyRoutineDatabase) var database
             
             let id = DailyRoutineRecord.makeID(date: date, dailyRoutineType: dailyRoutineType)
-            let predicate = #Predicate<DailyRoutineRecord> { $0.id == id }
-            let descriptor = FetchDescriptor<DailyRoutineRecord>(predicate: predicate)
+            
+            return try database.fetchOneBy(id)
+        }, addDailyRoutine: { record in
+            @Dependency(\.dailyRoutineDatabase) var database
 
-            return try database.fetch(descriptor)
-    }, addDailyRoutine: { record in
-        @Dependency(\.dailyRoutineDatabase) var database
-
-        try database.add(record)
+            try database.add(record)
     })
 }

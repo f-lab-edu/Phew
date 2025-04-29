@@ -15,18 +15,6 @@ struct RoutineFeature {
     struct State {
         var selectedIndex = 0
         var dailyRoutineType: DailyRoutineType
-        
-        func addDailyRoutineRecord(dailyRoutineRecord: DailyRoutineRecord) {
-            print(";;;;;1111>>>>>>>>############", dailyRoutineRecord.dailyRoutineType)
-            @Dependency(\.dailyRoutineRepository.addDailyRoutine) var addDailyRoutine
-            
-            do {
-                print("+!> ", dailyRoutineRecord.dailyRoutineType)
-                try addDailyRoutine(dailyRoutineRecord)
-            } catch {
-                
-            }
-        }
     }
 
     enum Action {
@@ -35,21 +23,31 @@ struct RoutineFeature {
         case doneButtonTapped(date: Date, dailyRoutineType: DailyRoutineType)
     }
     
-    func reduce(into state: inout State, action: Action) -> Effect<Action> {
-        switch action {
-        case .nextButtonTapped:
-            state.selectedIndex += 1
-            return .none
-        case .backButtonTapped:
-            state.selectedIndex -= 1
-            return .none
-        case .doneButtonTapped(let date, let dailyRoutineType):
-            let dailyRoutineRecord = DailyRoutineRecord(
-                date: date,
-                dailyRoutineType: dailyRoutineType
-            )
-            state.addDailyRoutineRecord(dailyRoutineRecord: dailyRoutineRecord)
-            return .none
+    var body: some Reducer<State, Action> {
+        Reduce { state, action in
+            switch action {
+            case .nextButtonTapped:
+                state.selectedIndex += 1
+                return .none
+            case .backButtonTapped:
+                state.selectedIndex -= 1
+                return .none
+            case .doneButtonTapped(let date, let dailyRoutineType):
+                @Dependency(\.dailyRoutineRepository.addDailyRoutine) var addDailyRoutine
+                
+                let dailyRoutineRecord = DailyRoutineRecord(
+                    date: date,
+                    dailyRoutineType: dailyRoutineType
+                )
+
+                do {
+                    try addDailyRoutine(dailyRoutineRecord)
+                } catch {
+                    // 에러 처리
+                }
+                
+                return .none
+            }
         }
     }
 }

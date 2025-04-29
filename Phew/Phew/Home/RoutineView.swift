@@ -9,11 +9,15 @@ import SwiftUI
 import ComposableArchitecture
 
 struct RoutineView: View {
+    enum Focused: Hashable {
+        case answer
+    }
+    
     @Environment(\.dismiss) private var dismiss
-    @Bindable var store: StoreOf<RoutineFeature>
     @State private var answerText: String = ""
     @State private var selectedScore = 3.0
-    @FocusState var focused: Bool
+    @Bindable var store: StoreOf<RoutineFeature>
+    @FocusState var focused: Focused?
     
     let date: Date
     let dailyRoutineType: DailyRoutineType
@@ -24,13 +28,7 @@ struct RoutineView: View {
             HStack {
                 Spacer()
                 
-                Button(action: {
-                    dismiss()
-                }) {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.black)
-                        .padding()
-                }
+                closeButton()
             }
             
             Spacer()
@@ -54,8 +52,10 @@ struct RoutineView: View {
                         }
                         .scrollTargetBehavior(.paging)
                         .onChange(of: store.selectedIndex) { oldValue, newValue in
-                            let task = dailyRoutineTasks[newValue]
-                            focused = task.taskType == .question ? true : false
+                            // 추후 다시 수정
+//                            if dailyRoutineTasks[newValue].taskType == .question {
+//                                focused = .answer
+//                            }
                             
                             withAnimation {
                                 proxy.scrollTo(newValue, anchor: .center)
@@ -67,27 +67,7 @@ struct RoutineView: View {
                 HStack {
                     Spacer()
                     
-                    Button(action: {
-                        if store.selectedIndex < dailyRoutineTasks.count - 1 {
-                            store.send(.nextButtonTapped)
-                        } else {
-                            store.send(
-                                .doneButtonTapped(
-                                    date: date,
-                                    dailyRoutineType: dailyRoutineType
-                                )
-                            )
-                            
-                            dismiss()
-                        }
-                    }) {
-                        Image(systemName: "chevron.right")
-                            .padding(16)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .clipShape(Circle())
-                            .padding()
-                    }
+                    nextButton()
                 }
             }
             .ignoresSafeArea(.keyboard)
@@ -99,7 +79,7 @@ struct RoutineView: View {
         for task: DailyRoutineTask,
         answerText: Binding<String>,
         selectedScore: Binding<Double>,
-        focued: FocusState<Bool>.Binding
+        focued: FocusState<Focused?>.Binding
     ) -> some View {
         switch task.taskType {
         case .question:
@@ -115,7 +95,7 @@ struct RoutineView: View {
                     .scrollContentBackground(.hidden)
                     .border(.gray.opacity(0.2), width: 2)
                     .padding(.horizontal)
-//                    .focused($focused)
+//                    .focused(focued, equals: .answer) // 추후 수정
             }
         case .slider:
             VStack(spacing: 20) {
@@ -157,6 +137,42 @@ struct RoutineView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
+        }
+    }
+    
+    @ViewBuilder
+    private func closeButton() -> some View {
+        Button(action: {
+            dismiss()
+        }) {
+            Image(systemName: "xmark")
+                .foregroundColor(.black)
+                .padding()
+        }
+    }
+    
+    @ViewBuilder
+    private func nextButton() -> some View {
+        Button(action: {
+            if store.selectedIndex < dailyRoutineTasks.count - 1 {
+                store.send(.nextButtonTapped)
+            } else {
+                store.send(
+                    .doneButtonTapped(
+                        date: date,
+                        dailyRoutineType: dailyRoutineType
+                    )
+                )
+                
+                dismiss()
+            }
+        }) {
+            Image(systemName: "chevron.right")
+                .padding(16)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .clipShape(Circle())
+                .padding()
         }
     }
 }

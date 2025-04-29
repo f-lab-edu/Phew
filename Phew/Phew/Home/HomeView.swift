@@ -9,20 +9,25 @@ import SwiftUI
 import ComposableArchitecture
 
 struct HomeView: View {
-    @Bindable var store: StoreOf<HomeFeature>
+    let store: StoreOf<HomeFeature>
+    @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
+
+
+    init(store: StoreOf<HomeFeature>) {
+        self.store = store
+        self.viewStore = ViewStore(store, observe: { $0 })
+    }
     
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { store in
-            VStack {
-                calendarHeaderView(selectedDate: store.state.selectedDate.monthAndDay())
-                    .padding(.horizontal)
-                
-                WeeklyCalendarPageViewController(store: self.store)
-                    .frame(maxHeight: 80)
-                
-                SelectedDateDetailPageViewController(store: self.store)
-                    .frame(maxHeight: .infinity)
-            }
+        VStack {
+            calendarHeaderView(selectedDate: viewStore.state.selectedDate.monthAndDay())
+                .padding(.horizontal)
+            
+            WeeklyCalendarPageViewController(store: self.store)
+                .frame(maxHeight: 80)
+            
+            SelectedDateDetailPageViewController(store: self.store)
+                .frame(maxHeight: .infinity)
         }
     }
     
