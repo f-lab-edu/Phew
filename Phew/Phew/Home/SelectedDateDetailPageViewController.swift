@@ -6,9 +6,10 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
-    @Environment(HomeViewModel.self) var viewModel
+    let store: StoreOf<HomeFeature>
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -19,7 +20,7 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             transitionStyle: .scroll,
             navigationOrientation: .horizontal
         )
-        let initialVC = context.coordinator.viewController(for: viewModel.selectedDate)
+        let initialVC = context.coordinator.viewController(for: store.state.selectedDate)
 
         pvc.setViewControllers([initialVC], direction: .forward, animated: false)
         pvc.dataSource = context.coordinator
@@ -29,20 +30,21 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ pageViewController: UIPageViewController, context: Context) {
+        let selectedDate = store.state.selectedDate
         let previousDate = context.coordinator.previousDate
-        let newVC = context.coordinator.viewController(for: viewModel.selectedDate)
+        let newVC = context.coordinator.viewController(for: selectedDate)
         
-        guard !Calendar.current.isDate(viewModel.selectedDate, inSameDayAs: previousDate) else {
+        guard !Calendar.current.isDate(store.state.selectedDate, inSameDayAs: previousDate) else {
             return
         }
         
         pageViewController.setViewControllers(
             [newVC],
-            direction: viewModel.selectedDate > previousDate ? .forward : .reverse,
+            direction: store.state.selectedDate > previousDate ? .forward : .reverse,
             animated: context.coordinator.isUserInteraction ? false : true
         )
         
-        context.coordinator.previousDate = viewModel.selectedDate
+        context.coordinator.previousDate = selectedDate
         context.coordinator.isUserInteraction = false
     }
 
@@ -50,17 +52,21 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         var parent: SelectedDateDetailPageViewController
         var previousDate: Date
         var isUserInteraction = false
-        let viewModel: HomeViewModel
-
-
+        let store: StoreOf<HomeFeature>
+        
         init(_ parent: SelectedDateDetailPageViewController) {
             self.parent = parent
-            self.previousDate = parent.viewModel.selectedDate
-            self.viewModel = parent.viewModel
+            self.previousDate = parent.store.state.selectedDate
+            self.store = parent.store
         }
 
         func viewController(for date: Date) -> UIViewController {
-            let vc = UIHostingController(rootView: SelectedDateDetailPageView(date: date))
+            let vc = UIHostingController(
+                rootView: SelectedDateDetailPageView(
+                    store: self.store,
+                    date: date
+                )
+            )
             vc.view.tag = Int(date.timeIntervalSince1970)
             
             return vc
@@ -90,15 +96,14 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
 
             let newDate = Date(timeIntervalSince1970: TimeInterval(currentVC.view.tag))
             
-            if !Calendar.current.isDate(newDate, inSameDayAs: parent.viewModel.selectedDate) {
-                viewModel.selectedDate = newDate
-                
+            if !Calendar.current.isDate(newDate, inSameDayAs: parent.store.state.selectedDate) {
+                store.send(.selectedDate(newDate))
                 if
                     let weekStartDate = Calendar.current.dateInterval(of: .weekOfYear, for: newDate)?.start,
-                    !Calendar.current.isDate(weekStartDate, inSameDayAs: parent.viewModel.currentWeekStartDate)
+                    !Calendar.current.isDate(weekStartDate, inSameDayAs: parent.store.state.currentWeekStartDate)
                 {
-                    viewModel.swipeDirection = newDate > parent.viewModel.selectedDate ? .forward : .reverse
-                    viewModel.currentWeekStartDate = weekStartDate
+                    store.send(.setSwipeDirection(newDate > parent.store.selectedDate ? .forward : .reverse))
+                    store.send(.setCurrentWeekStartDate(weekStartDate))
                 }
             }
         }

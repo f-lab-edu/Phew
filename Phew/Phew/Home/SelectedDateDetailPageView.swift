@@ -10,50 +10,65 @@ import ComposableArchitecture
 import SwiftData
 
 struct SelectedDateDetailPageView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Environment(HomeViewModel.self) var viewModel
+    @Bindable var store: StoreOf<HomeFeature>
+
     @State private var isPresenting = false
     
     let date: Date
 
     var body: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Group {
-                    if viewModel.currentMorningRoutine != nil {
-                        Button {
-                            isPresenting = true
-                        } label: {
-                            VStack {
-                                Text("\(date.monthAndDay()) 데이터 있음")
+        WithViewStore(store, observe: { $0 }) { store in
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    Group {
+                        if store.state.morningDailyRoutineRecord != nil {
+                            Button {
+                                isPresenting = true
+                            } label: {
+                                VStack {
+                                    Text("\(date.monthAndDay()) 데이터 있음")
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 150)
+                                .background(.gray)
+                                .foregroundColor(.white)
                             }
-                            .frame(maxWidth: .infinity, minHeight: 150)
-                            .background(.gray)
-                            .foregroundColor(.white)
+                            .padding()
+                        } else {
+                            routineButton(dailyRoutineType: .morning, date: date)
                         }
-                        .padding()
-                    } else {
-                        routineButton(dailyRoutineType: .morning, date: date)
+                    }
+                    
+                    Group {
+                        if store.state.nightDailyRoutineRecord != nil {
+                            Button {
+                                isPresenting = true
+                            } label: {
+                                VStack {
+                                    Text("\(date.monthAndDay()) 데이터 있음")
+                                }
+                                .frame(maxWidth: .infinity, minHeight: 150)
+                                .background(.gray)
+                                .foregroundColor(.white)
+                            }
+                            .padding()
+                        } else {
+                            routineButton(dailyRoutineType: .night, date: date)
+                        }
                     }
                 }
-                .onAppear {
-                    viewModel.fetchRecord(
-                        dailyRoutineType: .morning,
-                        context: modelContext
-                    )
-                }
                 
-                routineButton(dailyRoutineType: .night, date: date)
+                // 날짜 확인용
+                Text(date.monthAndDay())
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.primary)
+                    .padding(.horizontal)
             }
-            
-            // 날짜 확인용
-            Text(date.monthAndDay())
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-                .padding(.horizontal)
+            .frame(maxHeight: .infinity, alignment: .top)
+            .onAppear {
+                store.send(.fetchSelectedDateDailyRoutineRecord)
+            }
         }
-        .frame(maxHeight: .infinity, alignment: .top)
     }
     
     @ViewBuilder
@@ -75,7 +90,11 @@ struct SelectedDateDetailPageView: View {
         .padding()
         .sheet(isPresented: $isPresenting) {
             RoutineView(
-                store: Store(initialState: RoutineFeature.State.init(mode: .morning)) { RoutineFeature() },
+                store: Store(
+                    initialState: RoutineFeature.State.init(dailyRoutineType: dailyRoutineType)
+                ) {
+                    RoutineFeature()
+                },
                 date: date,
                 dailyRoutineType: dailyRoutineType,
                 dailyRoutineTasks: [

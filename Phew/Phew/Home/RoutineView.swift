@@ -9,7 +9,6 @@ import SwiftUI
 import ComposableArchitecture
 
 struct RoutineView: View {
-    @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Bindable var store: StoreOf<RoutineFeature>
     @State private var answerText: String = ""
@@ -72,19 +71,12 @@ struct RoutineView: View {
                         if store.selectedIndex < dailyRoutineTasks.count - 1 {
                             store.send(.nextButtonTapped)
                         } else {
-//                            store.send(
-//                                .doneButtonTapped(
-//                                    date: date,
-//                                    dailyRoutineType: dailyRoutineType
-//                                )
-//                            )
-                            
-                            let routineLog = DailyRoutineRecord(
-                                date: date,
-                                dailyRoutineType: dailyRoutineType,
-                                responses: []
+                            store.send(
+                                .doneButtonTapped(
+                                    date: date,
+                                    dailyRoutineType: dailyRoutineType
+                                )
                             )
-                            modelContext.insert(routineLog)
                             
                             dismiss()
                         }
@@ -167,19 +159,4 @@ struct RoutineView: View {
             }
         }
     }
-}
-    
-#Preview {
-    RoutineView(
-        store: Store(initialState: RoutineFeature.State.init(mode: .morning)) {
-        RoutineFeature()
-    },
-        date: .now,
-        dailyRoutineType: .morning,
-        dailyRoutineTasks: [
-            DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
-            DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
-            DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
-        ]
-    )
 }

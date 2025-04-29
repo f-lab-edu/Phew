@@ -6,34 +6,44 @@
 //
 
 import SwiftUI
-import SwiftData
+import ComposableArchitecture
 
 struct HomeView: View {
-    @Environment(HomeViewModel.self) var viewModel
+    @Bindable var store: StoreOf<HomeFeature>
     
     var body: some View {
-        VStack {
-            calendarHeaderView()
-            .padding(.horizontal)
-
-            WeeklyCalendarPageViewController()
-                .frame(maxHeight: 80)
-                        
-            SelectedDateDetailPageViewController()
-                .frame(maxHeight: .infinity)
+        WithViewStore(store, observe: { $0 }) { store in
+            VStack {
+                calendarHeaderView(selectedDate: store.state.selectedDate.monthAndDay())
+                    .padding(.horizontal)
+                
+                WeeklyCalendarPageViewController(store: self.store)
+                    .frame(maxHeight: 80)
+                
+                SelectedDateDetailPageViewController(store: self.store)
+                    .frame(maxHeight: .infinity)
+            }
         }
     }
     
     @ViewBuilder
-    private func calendarHeaderView() -> some View {
+    private func calendarHeaderView(selectedDate: String) -> some View {
         HStack(alignment: .center) {
-            Text(viewModel.selectedDate.monthAndDay())
+            Text(selectedDate)
                 .font(.headline)
         }
     }
 }
 
 #Preview {
-    HomeView()
-        .environment(HomeViewModel())
+    HomeView(store:
+                Store(initialState:
+                        HomeFeature.State.init(
+                            selectedDate: .now,
+                            morningDailyRoutineRecord: nil,
+                            nightDailyRoutineRecord: nil),
+                      reducer: { HomeFeature() }
+                     )
+    )
+    .environment(HomeViewModel())
 }

@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftData
 import ComposableArchitecture
 import Dependencies
 
@@ -15,13 +14,19 @@ struct RoutineFeature {
     @ObservableState
     struct State {
         var selectedIndex = 0
-        var mode: State.Mode
+        var dailyRoutineType: DailyRoutineType
         
-        
-        enum Mode: Equatable {
-            case morning
-            case night
-       }
+        func addDailyRoutineRecord(dailyRoutineRecord: DailyRoutineRecord) {
+            print(";;;;;1111>>>>>>>>############", dailyRoutineRecord.dailyRoutineType)
+            @Dependency(\.dailyRoutineRepository.addDailyRoutine) var addDailyRoutine
+            
+            do {
+                print("+!> ", dailyRoutineRecord.dailyRoutineType)
+                try addDailyRoutine(dailyRoutineRecord)
+            } catch {
+                print(">>>>>>RoutineFeature addDailyRoutineRecord 실패")
+            }
+        }
     }
 
     enum Action {
@@ -39,7 +44,11 @@ struct RoutineFeature {
             state.selectedIndex -= 1
             return .none
         case .doneButtonTapped(let date, let dailyRoutineType):
-            // 루틴 데이터 저장 로직
+            let dailyRoutineRecord = DailyRoutineRecord(
+                date: date,
+                dailyRoutineType: dailyRoutineType
+            )
+            state.addDailyRoutineRecord(dailyRoutineRecord: dailyRoutineRecord)
             return .none
         }
     }
