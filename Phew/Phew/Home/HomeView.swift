@@ -19,15 +19,17 @@ struct HomeView: View {
     }
     
     var body: some View {
-        VStack {
-            calendarHeaderView(selectedDate: viewStore.state.selectedDate.monthAndDay())
-                .padding(.horizontal)
-            
-            WeeklyCalendarPageViewController(store: self.store)
-                .frame(maxHeight: 80)
-            
-            SelectedDateDetailPageViewController(store: self.store)
-                .frame(maxHeight: .infinity)            
+        NavigationStack {
+            VStack {
+                calendarHeaderView(selectedDate: viewStore.state.selectedDate.monthAndDay())
+                    .padding(.horizontal)
+                
+                WeeklyCalendarPageViewController(store: self.store)
+                    .frame(maxHeight: 80)
+                
+                SelectedDateDetailPageViewController(store: self.store)
+                    .frame(maxHeight: .infinity)
+            }
         }
     }
     

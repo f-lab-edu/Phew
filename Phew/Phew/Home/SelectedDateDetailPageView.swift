@@ -10,7 +10,6 @@ import ComposableArchitecture
 import SwiftData
 
 struct SelectedDateDetailPageView: View {
-    @State private var presentedRoutineSheet: DailyRoutineType?
     @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
     @Bindable var store: StoreOf<HomeFeature>
     let date: Date
@@ -22,35 +21,31 @@ struct SelectedDateDetailPageView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                dailyRoutineButtons()
-                
-                // 날짜 확인용
-                Text(date.monthAndDay())
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-                    .padding(.horizontal)
-            }
-            .frame(maxHeight: .infinity, alignment: .top)
+        VStack(spacing: 0) {
+            dailyRoutineButtons()
+            
+            // 날짜 확인용
+            Text(date.monthAndDay())
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+                .padding(.horizontal)
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .onAppear {
             store.send(.fetchSelectedDateDailyRoutineRecord)
         }
         .sheet(
             item: $store.scope(state: \.addRoutine, action: \.addRoutine)
         ) { routineStore in
-          NavigationStack {
-              RoutineView(
+            RoutineView(
                 store: routineStore,
                 dailyRoutineTasks: [
                     DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
                     DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
                     DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
                 ]
-              )
-          }
+            )
         }
     }
     
@@ -58,7 +53,7 @@ struct SelectedDateDetailPageView: View {
     func dailyRoutineButtons() -> some View {
         HStack(spacing: 0) {
             Group {
-                if viewStore.state.morningDailyRoutineRecord != nil {
+                if let morningDailyRoutine = viewStore.state.morningDailyRoutineRecord {
                     Button {
                         // 저장한 루틴 디데일 화면
                     } label: {
@@ -71,12 +66,12 @@ struct SelectedDateDetailPageView: View {
                     }
                     .padding()
                 } else {
-                    routineButton(dailyRoutineType: .morning)
+                    addRoutineButton(dailyRoutineType: .morning)
                 }
             }
             
             Group {
-                if viewStore.state.nightDailyRoutineRecord != nil {
+                if let morningDailyRoutine = viewStore.state.nightDailyRoutineRecord {
                     Button {
                         // 저장한 루틴 디데일 화면
                     } label: {
@@ -89,17 +84,15 @@ struct SelectedDateDetailPageView: View {
                     }
                     .padding()
                 } else {
-                    routineButton(dailyRoutineType: .night)
+                    addRoutineButton(dailyRoutineType: .night)
                 }
             }
         }
     }
     
     @ViewBuilder
-    func routineButton(dailyRoutineType: DailyRoutineType) -> some View {
+    func addRoutineButton(dailyRoutineType: DailyRoutineType) -> some View {
         Button {
-            presentedRoutineSheet = dailyRoutineType
-            
             if dailyRoutineType == .morning {
                 store.send(.addMorningRoutineButtonTapped)
             } else {

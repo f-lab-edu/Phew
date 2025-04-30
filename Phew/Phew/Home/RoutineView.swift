@@ -13,7 +13,6 @@ struct RoutineView: View {
         case answer
     }
     
-    @Environment(\.dismiss) private var dismiss
     @State private var answerText: String = ""
     @State private var selectedScore = 3.0
     @Bindable var store: StoreOf<RoutineFeature>
@@ -141,7 +140,7 @@ struct RoutineView: View {
     @ViewBuilder
     private func closeButton() -> some View {
         Button(action: {
-            dismiss()
+            store.send(.closeButtonTapped)
         }) {
             Image(systemName: "xmark")
                 .foregroundColor(.black)
@@ -156,8 +155,6 @@ struct RoutineView: View {
                 store.send(.nextButtonTapped)
             } else {
                 store.send(.doneButtonTapped)
-                
-                dismiss()
             }
         }) {
             Image(systemName: "chevron.right")
