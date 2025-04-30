@@ -12,16 +12,25 @@ import Dependencies
 @Reducer
 struct RoutineFeature {
     @ObservableState
-    struct State {
+    struct State: Equatable {
         var selectedIndex = 0
         var dailyRoutineType: DailyRoutineType
+        var selectedDate: Date
     }
 
     enum Action {
         case nextButtonTapped
         case backButtonTapped
-        case doneButtonTapped(date: Date, dailyRoutineType: DailyRoutineType)
+        case doneButtonTapped
+        case closeButtonTapped
+        case delegate(Delegate)
+
+        enum Delegate {
+            case save
+        }
     }
+    
+    @Dependency(\.dismiss) var dismiss
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -32,12 +41,12 @@ struct RoutineFeature {
             case .backButtonTapped:
                 state.selectedIndex -= 1
                 return .none
-            case .doneButtonTapped(let date, let dailyRoutineType):
+            case .doneButtonTapped:
                 @Dependency(\.dailyRoutineRepository.addDailyRoutine) var addDailyRoutine
                 
                 let dailyRoutineRecord = DailyRoutineRecord(
-                    date: date,
-                    dailyRoutineType: dailyRoutineType
+                    date: state.selectedDate,
+                    dailyRoutineType: state.dailyRoutineType
                 )
 
                 do {
@@ -46,6 +55,13 @@ struct RoutineFeature {
                     // 에러 처리
                 }
                 
+                return .run { send in
+                    await send(.delegate(.save))
+                    await self.dismiss()
+                }
+            case .closeButtonTapped:
+                return .run { _ in await self.dismiss() }
+            case .delegate:
                 return .none
             }
         }

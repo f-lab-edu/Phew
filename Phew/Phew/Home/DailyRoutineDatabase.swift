@@ -8,6 +8,9 @@
 import SwiftUI
 import SwiftData
 import Dependencies
+import OSLog
+
+private let logger = Logger(subsystem: "Phew", category: "DailyRoutineDatabase")
 
 struct DailyRoutineDatabase {
     var fetchOneBy: @Sendable (_ id: String) throws -> DailyRoutineRecord?
@@ -27,7 +30,7 @@ extension DailyRoutineDatabase: DependencyKey {
         }, add: { dailyRoutineRecord in
             @Dependency(\.modelContextProvider.context) var context
             let movieContext = try context()
-            
+
             movieContext.insert(dailyRoutineRecord)
         }
     )

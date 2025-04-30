@@ -19,8 +19,6 @@ struct RoutineView: View {
     @Bindable var store: StoreOf<RoutineFeature>
     @FocusState var focused: Focused?
     
-    let date: Date
-    let dailyRoutineType: DailyRoutineType
     let dailyRoutineTasks: [DailyRoutineTask]
         
     var body: some View {
@@ -157,12 +155,7 @@ struct RoutineView: View {
             if store.selectedIndex < dailyRoutineTasks.count - 1 {
                 store.send(.nextButtonTapped)
             } else {
-                store.send(
-                    .doneButtonTapped(
-                        date: date,
-                        dailyRoutineType: dailyRoutineType
-                    )
-                )
+                store.send(.doneButtonTapped)
                 
                 dismiss()
             }

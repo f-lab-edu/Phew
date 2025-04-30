@@ -16,6 +16,7 @@ private let logger = Logger(subsystem: "Phew", category: "HomeFeature")
 struct HomeFeature {
     @ObservableState
     struct State: Equatable {
+        @Presents var addRoutine: RoutineFeature.State?
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
@@ -31,6 +32,9 @@ struct HomeFeature {
         case selectedDate(Date)
         case setCurrentWeekStartDate(Date)
         case setSwipeDirection(UIPageViewController.NavigationDirection)
+        case addMorningRoutineButtonTapped
+        case addNightRoutineButtonTapped
+        case addRoutine(PresentationAction<RoutineFeature.Action>)
     }
     
     var body: some Reducer<State, Action> {
@@ -58,7 +62,7 @@ struct HomeFeature {
                 return .none
             case .selectedDate(let date):
                 state.selectedDate = date
-                logger.debug("Selected Date: \(date)")
+                logger.debug("Selected Date: \(date.monthAndDay())")
                 return .none
             case .setCurrentWeekStartDate(let date):
                 state.currentWeekStartDate = date
@@ -66,7 +70,28 @@ struct HomeFeature {
             case .setSwipeDirection(let direction):
                 state.swipeDirection = direction
                 return .none
+            case .addMorningRoutineButtonTapped:
+                state.addRoutine = RoutineFeature.State(
+                    dailyRoutineType: .morning,
+                    selectedDate: state.selectedDate
+                )
+                return .none
+            case .addNightRoutineButtonTapped:
+                state.addRoutine = RoutineFeature.State(
+                    dailyRoutineType: .night,
+                    selectedDate: state.selectedDate
+                )
+                return .none
+            case .addRoutine(.presented(.delegate(.save))):
+                return .run { send in
+                    await send(.fetchSelectedDateDailyRoutineRecord)
+                }
+            case .addRoutine:
+                return .none
             }
+        }
+        .ifLet(\.$addRoutine, action: \.addRoutine) {
+            RoutineFeature()
         }
     }
 }

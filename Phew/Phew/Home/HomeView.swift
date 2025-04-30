@@ -27,7 +27,7 @@ struct HomeView: View {
                 .frame(maxHeight: 80)
             
             SelectedDateDetailPageViewController(store: self.store)
-                .frame(maxHeight: .infinity)
+                .frame(maxHeight: .infinity)            
         }
     }
     
