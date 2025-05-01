@@ -52,5 +52,4 @@ struct HomeView: View {
                       reducer: { HomeFeature() }
                      )
     )
-    .environment(HomeViewModel())
 }
