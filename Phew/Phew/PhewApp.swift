@@ -7,13 +7,23 @@
 
 import SwiftUI
 import SwiftData
+import Dependencies
 
 @main
 struct PhewApp: App {
+    @Dependency(\.modelContextProvider) var modelContextProvider
+    
+    var modelContext: ModelContext {
+        guard let modelContext = try? self.modelContextProvider.context() else {
+            fatalError("Could not find modelcontext")
+        }
+        return modelContext
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: DailyRoutineLog.self, inMemory: true)
+        .modelContext(self.modelContext)
     }
 }

@@ -6,13 +6,14 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 class WeeklyHostingController: UIHostingController<WeeklyCalendarPageView> {
     let week: [Date]
 
-    init(week: [Date]) {
+    init(store: StoreOf<HomeFeature>, week: [Date]) {
         self.week = week
-        super.init(rootView: WeeklyCalendarPageView(week: week))
+        super.init(rootView: WeeklyCalendarPageView(store: store, week: week))
     }
 
     @objc required dynamic init?(coder aDecoder: NSCoder) {
@@ -21,7 +22,7 @@ class WeeklyHostingController: UIHostingController<WeeklyCalendarPageView> {
 }
 
 struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
-    @Environment(HomeViewModel.self) var viewModel
+    let store: StoreOf<HomeFeature>
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -32,7 +33,7 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
             transitionStyle: .scroll,
             navigationOrientation: .horizontal
         )
-        let initialVC = context.coordinator.viewController(for: viewModel.currentWeekStartDate.generateWeek())
+        let initialVC = context.coordinator.viewController(for: store.state.currentWeekStartDate.generateWeek())
 
         pvc.setViewControllers([initialVC], direction: .forward, animated: false)
         pvc.dataSource = context.coordinator
@@ -45,7 +46,7 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
         let coordinator = context.coordinator
         
         let previousWeekStartDate = coordinator.previousWeekStartDate
-        let newWeekStartDate = viewModel.currentWeekStartDate
+        let newWeekStartDate = store.state.currentWeekStartDate
         
         guard !Calendar.current.isDate(previousWeekStartDate, inSameDayAs: newWeekStartDate) else {
             return
@@ -71,18 +72,21 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
 
     class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
         var parent: WeeklyCalendarPageViewController
-        var viewModel: HomeViewModel
         var previousWeekStartDate: Date
         var isUserInteraction = false
+        let store: StoreOf<HomeFeature>
 
         init(_ parent: WeeklyCalendarPageViewController) {
             self.parent = parent
-            self.viewModel = parent.viewModel
-            self.previousWeekStartDate = parent.viewModel.currentWeekStartDate
+            self.store = parent.store
+            self.previousWeekStartDate = parent.store.state.currentWeekStartDate
         }
 
         func viewController(for week: [Date]) -> WeeklyHostingController {
-            WeeklyHostingController(week: week)
+            WeeklyHostingController(
+                store: self.store,
+                week: week
+            )
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
@@ -116,9 +120,9 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
 
             if
                 let newWeekStartDate = currentVC.week.first,
-                !Calendar.current.isDate(newWeekStartDate, inSameDayAs: viewModel.currentWeekStartDate)
+                !Calendar.current.isDate(newWeekStartDate, inSameDayAs: store.state.currentWeekStartDate)
             {
-                viewModel.currentWeekStartDate = newWeekStartDate
+                store.send(.setCurrentWeekStartDate(newWeekStartDate))
             }
         }
         

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import ComposableArchitecture
 
 enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
     case calendar
@@ -33,7 +34,7 @@ extension AppScreen {
     var destination: some View {
         switch self {
         case .calendar:
-            HomeView()
+            HomeView(store: .init(initialState: .init(), reducer: { HomeFeature() }))
         case .status:
             StatusView()
         case .account:

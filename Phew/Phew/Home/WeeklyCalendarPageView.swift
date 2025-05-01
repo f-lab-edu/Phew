@@ -6,11 +6,18 @@
 //
 
 import SwiftUI
+import ComposableArchitecture
 
 struct WeeklyCalendarPageView: View {
-    @Environment(HomeViewModel.self) var viewModel
-    
+    @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
+    let store: StoreOf<HomeFeature>
     var week: [Date]
+
+    init(store: StoreOf<HomeFeature>, week: [Date]) {
+        self.store = store
+        self.viewStore = ViewStore(store, observe: { $0 })
+        self.week = week
+    }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -31,13 +38,13 @@ struct WeeklyCalendarPageView: View {
                         .background(
                             Circle()
                                 .fill(
-                                    Calendar.current.isDate(date, inSameDayAs: viewModel.selectedDate)
+                                    Calendar.current.isDate(date, inSameDayAs: store.state.selectedDate)
                                     ? .green.opacity(0.5)
                                     : .gray.opacity(0.1)
                                 )
                         )
                         .onTapGesture {
-                            viewModel.selectedDate = date
+                            store.send(.selectedDate(date))
                         }
                     
                     Spacer()
