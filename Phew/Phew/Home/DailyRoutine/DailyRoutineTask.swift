@@ -20,6 +20,7 @@ class DailyRoutineTask {
         case question
         case slider
         case quote
+        case singleSelection
     }
     
     init(id: UUID, taskType: DailyRoutineTaskType, title: String, subTitle: String? = nil, imageName: String? = nil) {

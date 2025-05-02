@@ -5,8 +5,7 @@
 //  Created by dong eun shin on 4/28/25.
 //
 
-import SwiftUI
-import SwiftData
+import Foundation
 import Dependencies
 
 struct DailyRoutineRepository {

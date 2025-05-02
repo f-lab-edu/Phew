@@ -38,14 +38,14 @@ struct SelectedDateDetailPageView: View {
         .sheet(
             item: $store.scope(state: \.addRoutine, action: \.addRoutine)
         ) { routineStore in
-            RoutineView(
-                store: routineStore,
-                dailyRoutineTasks: [
-                    DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
-                    DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
-                    DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
-                ]
-            )
+            DailyRoutineView(store: routineStore)
+//                store: routineStore,
+//                dailyRoutineTasks: [
+//                    DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
+//                    DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
+//                    DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
+//                ]
+//            )
         }
     }
     

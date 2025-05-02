@@ -5,12 +5,9 @@
 //  Created by dong eun shin on 4/29/25.
 //
 
-import SwiftUI
+import Foundation
 import SwiftData
 import Dependencies
-import OSLog
-
-private let logger = Logger(subsystem: "Phew", category: "DailyRoutineDatabase")
 
 struct DailyRoutineDatabase {
     var fetchOneBy: @Sendable (_ id: String) throws -> DailyRoutineRecord?

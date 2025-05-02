@@ -1,0 +1,58 @@
+[
+  {
+    "category": "Emotion",
+    "unicodeScalars": [
+      "1F600",
+      "1F602",
+      "1F60D"
+    ]
+  },
+  {
+    "category": "Nature",
+    "unicodeScalars": [
+      "1F332",
+      "1F31E",
+      "1F327FE0F"
+    ]
+  },
+  {
+    "category": "Activities",
+    "unicodeScalars": [
+      "26BD",
+      "1F3AE",
+      "1F3A8"
+    ]
+  },
+  {
+    "category": "Food",
+    "unicodeScalars": [
+      "1F355",
+      "1F34E",
+      "2615"
+    ]
+  },
+  {
+    "category": "Objects",
+    "unicodeScalars": [
+      "1F4C4",
+      "1F4A1",
+      "1F4F1"
+    ]
+  },
+  {
+    "category": "Travel",
+    "unicodeScalars": [
+      "1F697",
+      "2708FE0F",
+      "1F3D4FE0F"
+    ]
+  },
+  {
+    "category": "Symbols",
+    "unicodeScalars": [
+      "2764FE0F",
+      "2705",
+      "1F514"
+    ]
+  }
+]
