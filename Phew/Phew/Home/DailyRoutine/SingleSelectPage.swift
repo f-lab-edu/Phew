@@ -31,13 +31,13 @@ struct SingleSelectPage: View {
                             : Color.gray.opacity(0.1)
                         )
                         .clipShape(Circle())
-                        .overlay(
-                            selectedItem == item
-                            ? Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.blue)
-                                .offset(x: 20, y: -20)
-                            : nil
-                        )
+                        .overlay {
+                            if selectedItem == item {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .offset(x: 20, y: -20)
+                            }
+                        }
                         .onTapGesture {
                             if selectedItem == item {
                                 selectedItem = nil
