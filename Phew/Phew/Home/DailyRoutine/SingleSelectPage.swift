@@ -17,7 +17,6 @@ struct SingleSelectPage: View {
             Text(question)
                 .font(.title2)
                 .fontWeight(.semibold)
-                .padding(.top, 40)
                 .padding(.horizontal)
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
