@@ -36,7 +36,7 @@ extension AppScreen {
         case .calendar:
             HomeView(store: .init(initialState: .init(), reducer: { HomeFeature() }))
         case .status:
-            StatusView()
+            StatusView(store: .init(initialState: .init(), reducer: { StatusFeature() }))
         case .account:
             AccountView()
         }
