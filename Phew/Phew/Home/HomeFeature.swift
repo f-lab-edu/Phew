@@ -16,7 +16,7 @@ private let logger = Logger(subsystem: "Phew", category: "HomeFeature")
 struct HomeFeature {
     @ObservableState
     struct State: Equatable {
-        @Presents var addRoutine: RoutineFeature.State?
+        @Presents var addRoutine: DailyRoutineFeature.State?
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
@@ -34,7 +34,7 @@ struct HomeFeature {
         case setSwipeDirection(UIPageViewController.NavigationDirection)
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
-        case addRoutine(PresentationAction<RoutineFeature.Action>)
+        case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
     }
     
     var body: some Reducer<State, Action> {
@@ -71,13 +71,13 @@ struct HomeFeature {
                 state.swipeDirection = direction
                 return .none
             case .addMorningRoutineButtonTapped:
-                state.addRoutine = RoutineFeature.State(
+                state.addRoutine = DailyRoutineFeature.State(
                     dailyRoutineType: .morning,
                     selectedDate: state.selectedDate
                 )
                 return .none
             case .addNightRoutineButtonTapped:
-                state.addRoutine = RoutineFeature.State(
+                state.addRoutine = DailyRoutineFeature.State(
                     dailyRoutineType: .night,
                     selectedDate: state.selectedDate
                 )
@@ -91,7 +91,7 @@ struct HomeFeature {
             }
         }
         .ifLet(\.$addRoutine, action: \.addRoutine) {
-            RoutineFeature()
+            DailyRoutineFeature()
         }
     }
 }

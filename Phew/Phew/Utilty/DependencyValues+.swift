@@ -22,4 +22,9 @@ extension DependencyValues {
         get { self[DailyRoutineRepository.self] }
         set { self[DailyRoutineRepository.self] = newValue }
     }
+    
+    var emojiClient: EmojiClient {
+        get { self[EmojiClient.self] }
+        set { self[EmojiClient.self] = newValue }
+    }
 }
