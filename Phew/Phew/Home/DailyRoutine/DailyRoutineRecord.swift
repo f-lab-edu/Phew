@@ -20,12 +20,15 @@ class DailyRoutineRecord {
     @Attribute(.unique) var id: String
     var date: Date
     var dailyRoutineType: DailyRoutineType
-//    var responses: [DailyRoutineResponse]
+    var dailyRoutineTask: [DailyRoutineTask]
+    var responses: [DailyRoutineResponse]
     
-    init(date: Date, dailyRoutineType: DailyRoutineType) {
+    init(date: Date, dailyRoutineType: DailyRoutineType, dailyRoutineTask: [DailyRoutineTask], responses: [DailyRoutineResponse]) {
         self.id = DailyRoutineRecord.makeID(date: date, dailyRoutineType: dailyRoutineType)
         self.date = date
         self.dailyRoutineType = dailyRoutineType
+        self.dailyRoutineTask = dailyRoutineTask
+        self.responses = responses
     }
     
     static func makeID(date: Date, dailyRoutineType: DailyRoutineType) -> String {

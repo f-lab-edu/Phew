@@ -39,13 +39,6 @@ struct SelectedDateDetailPageView: View {
             item: $store.scope(state: \.addRoutine, action: \.addRoutine)
         ) { routineStore in
             DailyRoutineView(store: routineStore)
-//                store: routineStore,
-//                dailyRoutineTasks: [
-//                    DailyRoutineTask(id: UUID(), taskType: .slider, title: "1", subTitle: "1", imageName: "heart"),
-//                    DailyRoutineTask(id: UUID(), taskType: .question, title: "2", subTitle: "2", imageName: "heart"),
-//                    DailyRoutineTask(id: UUID(), taskType: .quote, title: "3", subTitle: "3", imageName: "heart")
-//                ]
-//            )
         }
     }
     
@@ -58,7 +51,7 @@ struct SelectedDateDetailPageView: View {
                         // 저장한 루틴 디데일 화면
                     } label: {
                         VStack {
-                            Text("\(date.monthAndDay()) 데이터 있음")
+                            Text(morningDailyRoutine.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
                         }
                         .frame(maxWidth: .infinity, minHeight: 150)
                         .background(.gray)
@@ -71,12 +64,12 @@ struct SelectedDateDetailPageView: View {
             }
             
             Group {
-                if let morningDailyRoutine = viewStore.state.nightDailyRoutineRecord {
+                if let nightDailyRoutine = viewStore.state.nightDailyRoutineRecord {
                     Button {
                         // 저장한 루틴 디데일 화면
                     } label: {
                         VStack {
-                            Text("\(date.monthAndDay()) 데이터 있음")
+                            Text(nightDailyRoutine.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
                         }
                         .frame(maxWidth: .infinity, minHeight: 150)
                         .background(.gray)
