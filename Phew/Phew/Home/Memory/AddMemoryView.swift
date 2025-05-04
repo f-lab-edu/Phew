@@ -17,35 +17,37 @@ struct AddMemoryView: View {
     var store: StoreOf<AddMemoryFeatures>
     
     var body: some View {
-        ScrollView(.vertical) {
-            VStack(alignment: .leading) {
-                HStack {
-                    Spacer()
+        VStack {
+            KeyboardAvoidingScrollView {
+                VStack(alignment: .leading) {
+                    HStack {
+                        Spacer()
+                        
+                        closeButton()
+                    }
                     
-                    closeButton()
+                    Text("Question")
+                        .font(.title2)
+                    
+                    selectedImageWithCloseButton()
+                    
+                    textEditorWithPlaceholder()
+                    
+                    Spacer()
                 }
-                
-                Text("질문")
-                    .font(.title2)
-                
-                selectedImageWithCloseButton()
-                
-                photosPicker()
-                
-                textEditorWithPlaceholder()
-                
-                saveButton()
-                
-                Spacer()
+                .padding(.bottom, 100)
             }
-            .padding()
-            .onChange(of: selectedItem) { oldItem, newItem in
-                if let newItem {
-                    Task {
-                        if let data = try? await newItem.loadTransferable(type: Data.self),
-                           let uiImage = UIImage(data: data) {
-                            selectedImage = uiImage
-                        }
+            
+            footerView()
+                .frame(maxWidth: .infinity)
+        }
+        .padding()
+        .onChange(of: selectedItem) { oldItem, newItem in
+            if let newItem {
+                Task {
+                    if let data = try? await newItem.loadTransferable(type: Data.self),
+                       let uiImage = UIImage(data: data) {
+                        selectedImage = uiImage
                     }
                 }
             }
@@ -53,24 +55,41 @@ struct AddMemoryView: View {
     }
     
     @ViewBuilder
+    private func footerView() -> some View {
+        HStack(spacing: 20) {
+            photosPicker()
+            
+            Spacer()
+            
+            saveButton()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.bottom, 0)
+    }
+    
+    @ViewBuilder
     private func selectedImageWithCloseButton() -> some View {
         if let image = selectedImage {
-            ZStack(alignment: .topTrailing) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 300)
-                
-                Button {
-                    selectedItem = nil
-                    selectedImage = nil
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.white)
-                        .background(Color.black.opacity(0.6))
-                        .clipShape(Circle())
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(height: 300)
+                .cornerRadius(12)
+                .overlay(alignment: .topTrailing) {
+                    Button {
+                        selectedImage = nil
+                        selectedItem = nil
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(.white)
+                            .font(.system(size: 10, weight: .bold))
+                            .padding(8)
+                            .background(Color.black)
+                            .clipShape(Circle())
+                    }
                 }
-            }
+                .transition(.opacity)
+                .animation(.easeInOut, value: selectedImage)
         }
     }
     
@@ -111,31 +130,30 @@ struct AddMemoryView: View {
             matching: .images,
             photoLibrary: .shared()
         ) {
-            Text(selectedImage == nil ? "사진 선택" : "사진 다시 선택")
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.blue)
+            Image(systemName: "photo")
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
-                .cornerRadius(10)
+                .frame(width: 50, height: 50)
+                .background(Color.blue)
+                .clipShape(Circle())
+                .shadow(radius: 4)
         }
 
     }
     
     @ViewBuilder
     private func saveButton() -> some View {
-        Button(action: {
+        Button {
             store.send(.saveButtonTapped(text))
-        }) {
-            Text("save")
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .frame(height: 50)
-                .background(Color.blue)
+        } label: {
+            Image(systemName: "checkmark")
+                .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
-                .cornerRadius(10)
+                .frame(width: 50, height: 50)
+                .background(Color.blue)
+                .clipShape(Circle())
+                .shadow(radius: 4)
         }
-        
     }
 }
 
