@@ -23,6 +23,9 @@ struct HomeFeature {
         
         var swipeDirection: UIPageViewController.NavigationDirection = .forward
         var currentWeekStartDate: Date = Date().startOfWeek()
+        
+        var morningDailyRoutineCache: [String: DailyRoutineRecord] = [:]
+        var nightDailyRoutineCache: [String: DailyRoutineRecord] = [:]
     }
 
     enum Action {
@@ -37,18 +40,36 @@ struct HomeFeature {
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
     }
     
+    @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
+    @Dependency(\.dailyRoutineDatabase.deleteAll) var deleteAll
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .fetchSelectedDateDailyRoutineRecord:
-                @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
-                
-                do {
-                    state.morningDailyRoutineRecord = try fetchDailyRoutine(state.selectedDate, .morning)
-                    state.nightDailyRoutineRecord = try fetchDailyRoutine(state.selectedDate, .night)
-                } catch {
-                    // 에러 처리
+                let selectedDate = state.selectedDate
+
+                if let cachedchedMorningRecord = state.morningDailyRoutineCache[selectedDate.monthAndDay()] {
+                    state.morningDailyRoutineRecord = cachedchedMorningRecord
+                } else {
+                    do {
+                        state.morningDailyRoutineRecord = try fetchDailyRoutine(selectedDate, .morning)
+                        state.morningDailyRoutineCache[selectedDate.monthAndDay()] = state.morningDailyRoutineRecord
+                    } catch {
+                        // 에러 처리
+                    }
                 }
+
+                if let cachedNightRecord = state.nightDailyRoutineCache[selectedDate.monthAndDay()] {
+                    state.nightDailyRoutineRecord = cachedNightRecord
+                } else {
+                    do {
+                        state.nightDailyRoutineRecord = try fetchDailyRoutine(selectedDate, .night)
+                        state.nightDailyRoutineCache[selectedDate.monthAndDay()] = state.nightDailyRoutineRecord
+                    } catch {
+                        // 에러 처리
+                    }
+                }
+
                 return .none
             case .moveToPreviousWeek:
                 if let previousWeek = Calendar.current.date(byAdding: .day, value: -7, to: state.currentWeekStartDate) {
@@ -82,10 +103,15 @@ struct HomeFeature {
                     selectedDate: state.selectedDate
                 )
                 return .none
-            case .addRoutine(.presented(.delegate(.save))):
-                return .run { send in
-                    await send(.fetchSelectedDateDailyRoutineRecord)
+            case .addRoutine(.presented(.delegate(.save(let record)))):
+                if record.dailyRoutineType == .morning {
+                    state.morningDailyRoutineRecord = record
+                    state.morningDailyRoutineCache[record.date.monthAndDay()] = record
+                } else {
+                    state.nightDailyRoutineRecord = record
+                    state.nightDailyRoutineCache[record.date.monthAndDay()] = record
                 }
+                return .none
             case .addRoutine:
                 return .none
             }

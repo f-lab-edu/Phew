@@ -21,39 +21,48 @@ struct DailyRoutineView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            ScrollViewReader { scrollProxy in
-                ZStack(alignment: .bottomTrailing) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 0) {
-                            ForEach(Array(store.state.tasks.enumerated()), id: \.offset) { index, task in
-                                SingleSelectPage(
-                                    question: task.title,
-                                    items: store.state.emojis ?? [],
-                                    selectedItem: Binding(
-                                        get: { store.state.selectedItemsPerPage[index] },
-                                        set: { store.send(.setSelectedItemsPerPage(index: index, selection: $0)) }
+            VStack(spacing: 0) {
+                HStack {
+                    Spacer()
+                    
+                    closeButton()
+                }
+                .padding([.horizontal, .top])
+                
+                ScrollViewReader { scrollProxy in
+                    ZStack(alignment: .bottomTrailing) {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 0) {
+                                ForEach(Array(store.state.tasks.enumerated()), id: \.offset) { index, task in
+                                    SingleSelectPage(
+                                        question: task.title,
+                                        items: store.state.emojis ?? [],
+                                        selectedItem: Binding(
+                                            get: { store.state.selectedItemsPerPage[index] },
+                                            set: { store.send(.setSelectedItemsPerPage(index: index, selection: $0)) }
+                                        )
                                     )
-                                )
-                                .frame(width: geometry.size.width, height: geometry.size.height)
-                                .id(index)
+                                    .frame(width: geometry.size.width, height: geometry.size.height)
+                                    .id(index)
+                                }
                             }
                         }
-                    }
-                    .scrollTargetBehavior(.paging)
-                    .frame(height: geometry.size.height)
-                    .onAppear {
-                        store.send(.emojisLoaded)
-                    }
-                    .onChange(of: localCurrentPage) { oldValue, newValue in
-                        withAnimation(.easeInOut(duration: 0.5)) {
-                            scrollProxy.scrollTo(newValue, anchor: .leading)
+                        .scrollTargetBehavior(.paging)
+                        .onAppear {
+                            store.send(.emojisLoaded)
                         }
-                    }
-                    
-                    HStack {
-                        Spacer()
+                        .onChange(of: localCurrentPage) { oldValue, newValue in
+                            withAnimation(.easeInOut(duration: 0.5)) {
+                                scrollProxy.scrollTo(newValue, anchor: .leading)
+                            }
+                        }
                         
-                        nextButton()
+                        HStack {
+                            Spacer()
+                            
+                            nextButton()
+                                .padding(.bottom, 40)
+                        }
                     }
                 }
             }
@@ -75,6 +84,19 @@ struct DailyRoutineView: View {
                 .foregroundColor(.white)
                 .clipShape(Circle())
                 .padding()
+        }
+    }
+    
+    @ViewBuilder
+    private func closeButton() -> some View {
+        Button(action: {
+            store.send(.closeButtonTapped)
+        }) {
+            Image(systemName: "xmark")
+                .foregroundColor(.black)
+                .padding(12)
+                .background(Color.gray.opacity(0.2))
+                .clipShape(Circle())
         }
     }
 }

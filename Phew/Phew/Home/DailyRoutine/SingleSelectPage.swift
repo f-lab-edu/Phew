@@ -17,7 +17,6 @@ struct SingleSelectPage: View {
             Text(question)
                 .font(.title2)
                 .fontWeight(.semibold)
-                .padding(.top, 40)
                 .padding(.horizontal)
 
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 60))], spacing: 16) {
@@ -31,13 +30,13 @@ struct SingleSelectPage: View {
                             : Color.gray.opacity(0.1)
                         )
                         .clipShape(Circle())
-                        .overlay(
-                            selectedItem == item
-                            ? Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.blue)
-                                .offset(x: 20, y: -20)
-                            : nil
-                        )
+                        .overlay {
+                            if selectedItem == item {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.blue)
+                                    .offset(x: 20, y: -20)
+                            }
+                        }
                         .onTapGesture {
                             if selectedItem == item {
                                 selectedItem = nil

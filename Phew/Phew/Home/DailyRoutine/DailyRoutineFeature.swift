@@ -35,7 +35,7 @@ struct DailyRoutineFeature {
         case setSelectedItemsPerPage(index: Int, selection: String?)
 
         enum Delegate {
-            case save
+            case save(DailyRoutineRecord)
         }
     }
     
@@ -53,19 +53,30 @@ struct DailyRoutineFeature {
                 state.currentPage -= 1
                 return .none
             case .doneButtonTapped:
-                let dailyRoutineRecord = DailyRoutineRecord(
-                    date: state.selectedDate,
-                    dailyRoutineType: state.dailyRoutineType
-                )
+                return .run { [state] send in
+                    let responses = state.tasks.enumerated().compactMap { index, task in
+                        DailyRoutineResponse(
+                            id: UUID(),
+                            question: task.title,
+                            dailyRoutineResponseType: .emoji,
+                            answerText: state.selectedItemsPerPage[index]?.toHexCode().first
+                        )
+                    }
 
-                do {
-                    try addDailyRoutine(dailyRoutineRecord)
-                } catch {
-                    // 에러 처리
-                }
-                
-                return .run { send in
-                    await send(.delegate(.save))
+                    let dailyRoutineRecord = DailyRoutineRecord(
+                        date: state.selectedDate,
+                        dailyRoutineType: state.dailyRoutineType,
+                        dailyRoutineTask: state.tasks,
+                        responses: responses
+                    )
+
+                    do {
+                        try addDailyRoutine(dailyRoutineRecord)
+                    } catch {
+                        // 에러 처리
+                    }
+                    
+                    await send(.delegate(.save(dailyRoutineRecord)))
                     await self.dismiss()
                 }
             case .closeButtonTapped:
@@ -74,19 +85,13 @@ struct DailyRoutineFeature {
                 return .none
             case .emojisLoaded:
                 do {
-                    guard let emojis = try loadEmojis() else {
+                    guard
+                        let emojis = try loadEmojis()
+                    else {
                         return .none
                     }
                     
-                    let convertedEmojis: [String] = emojis.flatMap { emoji in
-                        emoji.unicodeScalars.compactMap { hex in
-                            guard let intVal = Int(hex, radix: 16),
-                                  let scalar = UnicodeScalar(intVal) else {
-                                return nil
-                            }
-                            return String(scalar)
-                        }
-                    }
+                    let convertedEmojis = emojis.flatMap { $0.unicodeScalars.compactMap { $0.toEmoji() } }
                     
                     state.emojis = convertedEmojis
                 } catch {
@@ -94,9 +99,8 @@ struct DailyRoutineFeature {
                 }
                 return .none
             case let .setCurrentPage(page):
-                        state.currentPage = page
-                        return .none
-
+                state.currentPage = page
+                return .none
             case .setSelectedItemsPerPage(index: let index, selection: let selection):
                 if let selection {
                     state.selectedItemsPerPage[index] = selection

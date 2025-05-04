@@ -9,6 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct StatusView: View {
+    @State private var scale: CGFloat = 1.0
+
     @ObservedObject var viewStore: ViewStoreOf<StatusFeature>
     var store: StoreOf<StatusFeature>
 
@@ -16,21 +18,26 @@ struct StatusView: View {
         self.store = store
         self.viewStore = ViewStore(store, observe: { $0 })
     }
-        
+          
     var body: some View {
         VStack {
             Circle()
                 .fill(color(for: viewStore.score))
-                .frame(
-                    width: 200 * viewStore.scale,
-                    height: 200 * viewStore.scale
-                )
+                .frame(width: 200, height: 200)
+                .scaleEffect(scale)
                 .shadow(
                     color: color(for: viewStore.score).opacity(1.0),
-                    radius: 30 * viewStore.scale,
-                    x: 0, y: 4 * viewStore.scale
+                    radius: 30,
+                    x: 0, y: 4
                 )
-                .animation(.easeInOut(duration: 0.1), value: viewStore.scale)
+                .onAppear {
+                    withAnimation(
+                        .easeInOut(duration: 1.0)
+                        .repeatForever(autoreverses: true)
+                    ) {
+                        scale = 1.2
+                    }
+                }
             
             // 색상 확인용
             Text("Score: \(viewStore.score)")
@@ -43,12 +50,6 @@ struct StatusView: View {
             ), in: 0...100)
                 .padding()
             // end
-        }
-        .onAppear {
-            viewStore.send(.startTimer)
-        }
-        .onDisappear {
-            viewStore.send(.stopTimer)
         }
     }
 

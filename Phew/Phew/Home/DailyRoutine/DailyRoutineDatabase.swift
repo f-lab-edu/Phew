@@ -12,6 +12,7 @@ import Dependencies
 struct DailyRoutineDatabase {
     var fetchOneBy: @Sendable (_ id: String) throws -> DailyRoutineRecord?
     var add: @Sendable (DailyRoutineRecord) throws -> Void
+    var deleteAll: @Sendable () throws -> Void
 }
 
 extension DailyRoutineDatabase: DependencyKey {
@@ -24,11 +25,25 @@ extension DailyRoutineDatabase: DependencyKey {
             let descriptor = FetchDescriptor<DailyRoutineRecord>(predicate: predicate)
 
             return try movieContext.fetch(descriptor).first
-        }, add: { dailyRoutineRecord in
+        },
+        add: { dailyRoutineRecord in
             @Dependency(\.modelContextProvider.context) var context
             let movieContext = try context()
 
             movieContext.insert(dailyRoutineRecord)
+            
+            try movieContext.save()
+        },
+        deleteAll: {
+            @Dependency(\.modelContextProvider.context) var context
+            let modelContext = try context()
+
+            let allRecords = try modelContext.fetch(FetchDescriptor<DailyRoutineRecord>())
+            for record in allRecords {
+                modelContext.delete(record)
+            }
+
+            try modelContext.save()
         }
     )
 }
