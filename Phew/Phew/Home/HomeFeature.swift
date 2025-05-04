@@ -17,6 +17,7 @@ struct HomeFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var addRoutine: DailyRoutineFeature.State?
+        @Presents var addMemory: AddMemoryFeatures.State?
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
@@ -38,10 +39,12 @@ struct HomeFeature {
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
+        case addMemory(PresentationAction<AddMemoryFeatures.Action>)
+        case addMemoryButtonTapped
     }
     
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
-    @Dependency(\.dailyRoutineDatabase.deleteAll) var deleteAll
+
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
@@ -114,10 +117,20 @@ struct HomeFeature {
                 return .none
             case .addRoutine:
                 return .none
+            case .addMemoryButtonTapped:
+                state.addMemory = AddMemoryFeatures.State(selectedDate: state.selectedDate)
+                return .none
+            case .addMemory(.presented(.delegate(.save(let memory)))):
+                return .none
+            default:
+                return .none
             }
         }
         .ifLet(\.$addRoutine, action: \.addRoutine) {
             DailyRoutineFeature()
+        }
+        .ifLet(\.$addMemory, action: \.addMemory) {
+            AddMemoryFeatures()
         }
     }
 }
