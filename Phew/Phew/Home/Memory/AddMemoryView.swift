@@ -23,7 +23,9 @@ struct AddMemoryView: View {
                     HStack {
                         Spacer()
                         
-                        closeButton()
+                        CloseButton {
+                            store.send(.closeButtonTapped)
+                        }
                     }
                     
                     Text("Question")
@@ -108,19 +110,6 @@ struct AddMemoryView: View {
         }
         .frame(height: 150)
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.5)))
-    }
-    
-    @ViewBuilder
-    private func closeButton() -> some View {
-        Button(action: {
-            store.send(.closeButtonTapped)
-        }) {
-            Image(systemName: "xmark")
-                .foregroundColor(.black)
-                .padding(12)
-                .background(Color.gray.opacity(0.2))
-                .clipShape(Circle())
-        }
     }
     
     @ViewBuilder

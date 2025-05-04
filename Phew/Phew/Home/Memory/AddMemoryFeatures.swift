@@ -21,7 +21,7 @@ struct AddMemoryFeatures {
         case delegate(Delegate)
         
         enum Delegate {
-            case save(DailyRoutineRecord)
+            case save(Memory)
         }
     }
     
