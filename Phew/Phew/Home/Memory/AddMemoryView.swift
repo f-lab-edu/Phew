@@ -17,33 +17,34 @@ struct AddMemoryView: View {
     var store: StoreOf<AddMemoryFeatures>
     
     var body: some View {
-        VStack {
-            KeyboardAvoidingScrollView {
-                VStack(alignment: .leading) {
-                    HStack {
-                        Spacer()
-                        
-                        CloseButton {
-                            store.send(.closeButtonTapped)
-                        }
-                    }
-                    
-                    Text("Question")
-                        .font(.title2)
-                    
-                    selectedImageWithCloseButton()
-                    
-                    textEditorWithPlaceholder()
-                    
+        ScrollView {
+            VStack(alignment: .leading) {
+                HStack {
                     Spacer()
+                    
+                    CloseButton {
+                        store.send(.closeButtonTapped)
+                    }
                 }
-                .padding(.bottom, 100)
+                
+                Text("Question")
+                    .font(.title2)
+                
+                selectedImageWithCloseButton()
+                
+                textEditorWithPlaceholder()
+                
+                Spacer()
             }
-            
-            footerView()
-                .frame(maxWidth: .infinity)
         }
         .padding()
+        .ignoresSafeArea(.keyboard)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            footerView()
+                .padding()
+                .frame(maxWidth: .infinity)
+                .cornerRadius(16)
+        }
         .onChange(of: selectedItem) { oldItem, newItem in
             if let newItem {
                 Task {
@@ -66,7 +67,6 @@ struct AddMemoryView: View {
             saveButton()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.bottom, 0)
     }
     
     @ViewBuilder
