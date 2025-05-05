@@ -23,6 +23,16 @@ extension DependencyValues {
         set { self[DailyRoutineRepository.self] = newValue }
     }
     
+    var memoryDatabase: MemoryDatabase {
+        get { self[MemoryDatabase.self] }
+        set { self[MemoryDatabase.self] = newValue }
+    }
+    
+    var memoryRepository: MomoryRepository {
+        get { self[MomoryRepository.self] }
+        set { self[MomoryRepository.self] = newValue }
+    }
+    
     var emojiClient: EmojiClient {
         get { self[EmojiClient.self] }
         set { self[EmojiClient.self] = newValue }

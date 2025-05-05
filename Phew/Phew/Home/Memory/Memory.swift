@@ -15,10 +15,14 @@ class Memory {
     var text: String
     var images: [String]?
     
-    init(id: String, date: Date, text: String, images: [String]? = nil) {
-        self.id = id
+    init(date: Date, text: String, images: [String]? = nil) {
+        self.id = Memory.makeID(date: date)
         self.date = date
         self.text = text
         self.images = images
+    }
+    
+    static func makeID(date: Date) -> String {
+        date.monthAndDay()
     }
 }
