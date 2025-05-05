@@ -27,23 +27,31 @@ struct HomeFeature {
         
         var morningDailyRoutineCache: [String: DailyRoutineRecord] = [:]
         var nightDailyRoutineCache: [String: DailyRoutineRecord] = [:]
+        
+        var selectedDateMemory: Memory?
+        var memoryCache: [String: Memory] = [:]
     }
 
     enum Action {
-        case fetchSelectedDateDailyRoutineRecord
-        case moveToPreviousWeek
-        case moveToNextWeek
         case selectedDate(Date)
         case setCurrentWeekStartDate(Date)
+        
+        case moveToPreviousWeek
+        case moveToNextWeek
         case setSwipeDirection(UIPageViewController.NavigationDirection)
+        
+        case fetchSelectedDateDailyRoutineRecord
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
+        
         case addMemory(PresentationAction<AddMemoryFeatures.Action>)
         case addMemoryButtonTapped
+        case fetchMemory
     }
     
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
+    @Dependency(\.memoryRepository.fetchMemory) var fetchMemory
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
@@ -121,6 +129,22 @@ struct HomeFeature {
                 state.addMemory = AddMemoryFeatures.State(selectedDate: state.selectedDate)
                 return .none
             case .addMemory(.presented(.delegate(.save(let memory)))):
+                state.selectedDateMemory = memory
+                return .none
+            case .fetchMemory:
+                let selectedDate = state.selectedDate
+
+                if let cachedMemory = state.memoryCache[selectedDate.monthAndDay()] {
+                    state.selectedDateMemory = cachedMemory
+                } else {
+                    do {
+                        state.selectedDateMemory = try fetchMemory(selectedDate)
+                        state.memoryCache[selectedDate.monthAndDay()] = state.selectedDateMemory
+                    } catch {
+                        // 에러 처리
+                    }
+                }
+                
                 return .none
             default:
                 return .none

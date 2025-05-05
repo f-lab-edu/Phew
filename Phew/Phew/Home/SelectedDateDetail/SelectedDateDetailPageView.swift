@@ -24,11 +24,12 @@ struct SelectedDateDetailPageView: View {
         VStack(spacing: 0) {
             dailyRoutineButtons()
             
-            addMemoryButton()
+            memoryButtons()
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .onAppear {
             store.send(.fetchSelectedDateDailyRoutineRecord)
+            store.send(.fetchMemory)
         }
         .sheet(
             item: $store.scope(state: \.addRoutine, action: \.addRoutine)
@@ -104,11 +105,39 @@ struct SelectedDateDetailPageView: View {
     }
     
     @ViewBuilder
+    func memoryButtons() -> some View {
+        HStack(spacing: 0) {
+            Group {
+                if let selectedDateMemory = viewStore.state.selectedDateMemory {
+                    editMemoryButton(memory: selectedDateMemory)
+                } else {
+                    addMemoryButton()
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
     func addMemoryButton() -> some View {
         Button {
             store.send(.addMemoryButtonTapped)
         } label: {
             Text("Add Memory")
+                .font(.title)
+                .frame(maxWidth: .infinity, minHeight: 100)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .padding(.horizontal)
+        }
+    }
+    
+    @ViewBuilder
+    func editMemoryButton(memory: Memory) -> some View {
+        Button {
+            // TODO: - 일기 디테일 화면으로 이동
+        } label: {
+            Text("작성된 일기 있음")
                 .font(.title)
                 .frame(maxWidth: .infinity, minHeight: 100)
                 .background(Color.blue)

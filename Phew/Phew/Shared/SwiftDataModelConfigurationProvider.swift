@@ -19,7 +19,8 @@ extension ModelContextProvider: DependencyKey {
                 let schema = Schema([
                     DailyRoutineRecord.self,
                     DailyRoutineResponse.self,
-                    DailyRoutineTask.self
+                    DailyRoutineTask.self,
+                    Memory.self,
                 ])
                 let configuration = ModelConfiguration(isStoredInMemoryOnly: false)
                 let container = try ModelContainer(for: schema, configurations: [configuration])

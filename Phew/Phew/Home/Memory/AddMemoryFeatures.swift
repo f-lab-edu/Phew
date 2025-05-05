@@ -26,12 +26,27 @@ struct AddMemoryFeatures {
     }
     
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.memoryRepository.addMemory) var addMemory
     
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .saveButtonTapped(let text):
-                return .none
+                return .run { [state] send in
+                    let memory = Memory(
+                        date: state.selectedDate,
+                        text: text
+                    )
+
+                    do {
+                        try addMemory(memory)
+                    } catch {
+                        // 에러 처리
+                    }
+                    
+                    await send(.delegate(.save(memory)))
+                    await self.dismiss()
+                }
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }
             case .delegate:
