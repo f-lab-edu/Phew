@@ -25,7 +25,9 @@ struct DailyRoutineView: View {
                 HStack {
                     Spacer()
                     
-                    closeButton()
+                    CloseButton {
+                        store.send(.closeButtonTapped)
+                    }
                 }
                 .padding([.horizontal, .top])
                 
@@ -84,19 +86,6 @@ struct DailyRoutineView: View {
                 .foregroundColor(.white)
                 .clipShape(Circle())
                 .padding()
-        }
-    }
-    
-    @ViewBuilder
-    private func closeButton() -> some View {
-        Button(action: {
-            store.send(.closeButtonTapped)
-        }) {
-            Image(systemName: "xmark")
-                .foregroundColor(.black)
-                .padding(12)
-                .background(Color.gray.opacity(0.2))
-                .clipShape(Circle())
         }
     }
 }

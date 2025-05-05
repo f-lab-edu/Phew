@@ -24,12 +24,7 @@ struct SelectedDateDetailPageView: View {
         VStack(spacing: 0) {
             dailyRoutineButtons()
             
-            // 날짜 확인용
-            Text(date.monthAndDay())
-                .font(.title2)
-                .fontWeight(.semibold)
-                .foregroundColor(.primary)
-                .padding(.horizontal)
+            addMemoryButton()
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .onAppear {
@@ -40,6 +35,11 @@ struct SelectedDateDetailPageView: View {
         ) { routineStore in
             DailyRoutineView(store: routineStore)
         }
+        .sheet(
+            item: $store.scope(state: \.addMemory, action: \.addMemory)
+        ) { routineStore in
+            AddMemoryView(store: routineStore)
+        }
     }
     
     @ViewBuilder
@@ -47,17 +47,7 @@ struct SelectedDateDetailPageView: View {
         HStack(spacing: 0) {
             Group {
                 if let morningDailyRoutine = viewStore.state.morningDailyRoutineRecord {
-                    Button {
-                        // 저장한 루틴 디데일 화면
-                    } label: {
-                        VStack {
-                            Text(morningDailyRoutine.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 150)
-                        .background(.gray)
-                        .foregroundColor(.white)
-                    }
-                    .padding()
+                    editRoutineButton(dailyRoutineRecord: morningDailyRoutine)
                 } else {
                     addRoutineButton(dailyRoutineType: .morning)
                 }
@@ -65,17 +55,7 @@ struct SelectedDateDetailPageView: View {
             
             Group {
                 if let nightDailyRoutine = viewStore.state.nightDailyRoutineRecord {
-                    Button {
-                        // 저장한 루틴 디데일 화면
-                    } label: {
-                        VStack {
-                            Text(nightDailyRoutine.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 150)
-                        .background(.gray)
-                        .foregroundColor(.white)
-                    }
-                    .padding()
+                    editRoutineButton(dailyRoutineRecord: nightDailyRoutine)
                 } else {
                     addRoutineButton(dailyRoutineType: .night)
                 }
@@ -102,7 +82,50 @@ struct SelectedDateDetailPageView: View {
             .frame(maxWidth: .infinity, minHeight: 150)
             .background(.gray)
             .foregroundColor(.white)
+            .cornerRadius(10)
         }
         .padding()
     }
+    
+    @ViewBuilder
+    func editRoutineButton(dailyRoutineRecord: DailyRoutineRecord) -> some View {
+        Button {
+            // TODO: - 저장한 루틴 디데일 화면으로 이동
+        } label: {
+            VStack {
+                Text(dailyRoutineRecord.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
+            }
+            .frame(maxWidth: .infinity, minHeight: 150)
+            .background(.gray)
+            .foregroundColor(.white)
+            .cornerRadius(10)
+        }
+        .padding()
+    }
+    
+    @ViewBuilder
+    func addMemoryButton() -> some View {
+        Button {
+            store.send(.addMemoryButtonTapped)
+        } label: {
+            Text("Add Memory")
+                .font(.title)
+                .frame(maxWidth: .infinity, minHeight: 100)
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .padding(.horizontal)
+        }
+    }
+}
+
+#Preview {
+    SelectedDateDetailPageView(
+        store: .init(
+            initialState: HomeFeature.State.init(),
+            reducer: {
+                HomeFeature()
+        }),
+        date: .now
+    )
 }
