@@ -29,7 +29,7 @@ struct DailyRoutineView: View {
                         store.send(.closeButtonTapped)
                     }
                 }
-                .padding([.horizontal, .top])
+                .padding(.horizontal)
                 
                 ScrollViewReader { scrollProxy in
                     ZStack(alignment: .bottomTrailing) {
@@ -82,7 +82,7 @@ struct DailyRoutineView: View {
         }) {
             Image(systemName: localCurrentPage < store.state.tasks.count - 1 ? "chevron.right" : "checkmark")
                 .padding(16)
-                .background(Color.blue)
+                .background(.green)
                 .foregroundColor(.white)
                 .clipShape(Circle())
                 .padding()

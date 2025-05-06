@@ -31,15 +31,25 @@ struct SelectedDateDetailPageView: View {
             store.send(.fetchSelectedDateDailyRoutineRecord)
             store.send(.fetchMemory)
         }
-        .sheet(
+        .fullScreenCover(
             item: $store.scope(state: \.addRoutine, action: \.addRoutine)
-        ) { routineStore in
-            DailyRoutineView(store: routineStore)
+        ) { store in
+            DailyRoutineView(store: store)
         }
-        .sheet(
+        .fullScreenCover(
             item: $store.scope(state: \.addMemory, action: \.addMemory)
-        ) { routineStore in
-            AddMemoryView(store: routineStore)
+        ) { store in
+            AddMemoryView(store: store)
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.editMemory, action: \.editMemory)
+        ) { store in
+            MemoryDetailView(store: store)
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.editRoutine, action: \.editRoutine)
+        ) { store in
+            DailyRoutineDetailView(store: store)
         }
     }
     
@@ -74,34 +84,45 @@ struct SelectedDateDetailPageView: View {
             }
         } label: {
             VStack {
-                Image(systemName: "heart")
+                Image(systemName: dailyRoutineType == .morning ? "sun.max" : "moon")
+                    .font(.system(size: 26, weight: .semibold))
+                    .padding(2)
                 
-                Text("title")
+                Text(dailyRoutineType == .morning ? "Morning Magic" : "End Well")
+                    .font(.headline)
+                    .fontWeight(.bold)
                 
-                Text("subtitle")
+                Text(dailyRoutineType == .morning ? "Start the day" : "Ready for tomorrow")
+                    .font(.footnote)
             }
             .frame(maxWidth: .infinity, minHeight: 150)
-            .background(.gray)
+            .background(.green)
             .foregroundColor(.white)
-            .cornerRadius(10)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 4)
         }
-        .padding()
+        .padding(.leading, dailyRoutineType == .morning ? 16 : 8)
+        .padding(.trailing, dailyRoutineType == .morning ? 8 : 16)
+        .padding(.bottom)
     }
     
     @ViewBuilder
     func editRoutineButton(dailyRoutineRecord: DailyRoutineRecord) -> some View {
         Button {
-            // TODO: - 저장한 루틴 디데일 화면으로 이동
+            store.send(.editRoutineButtonTapped(dailyRoutineType: dailyRoutineRecord.dailyRoutineType))
         } label: {
             VStack {
                 Text(dailyRoutineRecord.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
             }
             .frame(maxWidth: .infinity, minHeight: 150)
-            .background(.gray)
+            .background(.green.opacity(0.5))
             .foregroundColor(.white)
-            .cornerRadius(10)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 4)
         }
-        .padding()
+        .padding(.leading, dailyRoutineRecord.dailyRoutineType == .morning ? 16 : 8)
+        .padding(.trailing, dailyRoutineRecord.dailyRoutineType == .morning ? 8 : 16)
+        .padding(.bottom)
     }
     
     @ViewBuilder
@@ -119,32 +140,81 @@ struct SelectedDateDetailPageView: View {
     
     @ViewBuilder
     func addMemoryButton() -> some View {
-        Button {
+        Button(action: {
             store.send(.addMemoryButtonTapped)
-        } label: {
-            Text("Add Memory")
-                .font(.title)
-                .frame(maxWidth: .infinity, minHeight: 100)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .padding(.horizontal)
+        }) {
+            ZStack {
+                VStack {
+                    Text("Today, As It Was")
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .foregroundColor(.green)
+                        .padding(.top)
+                    
+                    Spacer()
+                }
+                
+                Image(systemName: "plus.circle")
+                    .resizable()
+                    .frame(width: 50, height: 50)
+                    .foregroundColor(.white)
+                    .background(Circle().fill(Color.green))
+            }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.green, lineWidth: 2)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 4)
+        )
+        .padding([.bottom, .horizontal])
     }
     
     @ViewBuilder
     func editMemoryButton(memory: Memory) -> some View {
-        Button {
-            // TODO: - 일기 디테일 화면으로 이동
-        } label: {
-            Text("작성된 일기 있음")
-                .font(.title)
-                .frame(maxWidth: .infinity, minHeight: 100)
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-                .padding(.horizontal)
+        Button(action: {
+            store.send(.savedMemoryButtonTapped)
+        }) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Today, As It Was")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.green)
+                
+                if let data = memory.images?.first,
+                   let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 300)
+                        .frame(maxWidth: .infinity)
+                }
+                
+                Text(memory.text)
+                    .font(.body)
+                    .foregroundColor(.black.opacity(0.7))
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .padding()
+            .background(Color.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 4)
         }
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(Color.green, lineWidth: 2)
+                .background(Color.white)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 4)
+        )
+        .padding([.bottom, .horizontal])
     }
 }
 

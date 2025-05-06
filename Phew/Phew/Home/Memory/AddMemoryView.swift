@@ -14,6 +14,22 @@ struct AddMemoryView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedImage: UIImage?
     
+    enum MemoryEmotion: String, CaseIterable, Identifiable {
+        case remember
+        case forget
+
+        var id: String { self.rawValue }
+
+        var description: String {
+            switch self {
+            case .remember: return "Keep it in my heart"
+            case .forget: return "Let it fade away"
+            }
+        }
+    }
+
+    @State private var selectedEmotion: MemoryEmotion = .remember
+    
     var store: StoreOf<AddMemoryFeatures>
     
     var body: some View {
@@ -34,15 +50,21 @@ struct AddMemoryView: View {
                 
                 textEditorWithPlaceholder()
                 
+                Picker("How would you like to keep this memory?", selection: $selectedEmotion) {
+                    ForEach(MemoryEmotion.allCases) { emotion in
+                        Text(emotion.description).tag(emotion)
+                    }
+                }
+                .pickerStyle(.segmented)
+                
                 Spacer()
             }
         }
-        .padding()
+        .padding(.horizontal)
         .ignoresSafeArea(.keyboard)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             footerView()
                 .padding()
-                .frame(maxWidth: .infinity)
                 .cornerRadius(16)
         }
         .onChange(of: selectedItem) { oldItem, newItem in
@@ -64,9 +86,9 @@ struct AddMemoryView: View {
             
             Spacer()
             
-            saveButton()
+            saveButton
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
     }
     
     @ViewBuilder
@@ -123,26 +145,34 @@ struct AddMemoryView: View {
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 50, height: 50)
-                .background(Color.blue)
+                .background(.green)
                 .clipShape(Circle())
                 .shadow(radius: 4)
         }
 
     }
     
-    @ViewBuilder
-    private func saveButton() -> some View {
+    private var saveButton: some View {
         Button {
-            store.send(.saveButtonTapped(text))
+            if let data = selectedImage?.jpegData(compressionQuality: 0.8) {
+                store.send(
+                    .saveButtonTapped(
+                        text: text,
+                        imageData: data,
+                        isGoodMemory: selectedEmotion == .remember ? true : false
+                    )
+                )
+            }
         } label: {
             Image(systemName: "checkmark")
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 50, height: 50)
-                .background(Color.blue)
+                .background(text.isEmpty ? .gray.opacity(0.5) : .green)
                 .clipShape(Circle())
                 .shadow(radius: 4)
         }
+        .disabled(text.isEmpty)
     }
 }
 

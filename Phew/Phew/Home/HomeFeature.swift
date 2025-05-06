@@ -18,6 +18,9 @@ struct HomeFeature {
     struct State: Equatable {
         @Presents var addRoutine: DailyRoutineFeature.State?
         @Presents var addMemory: AddMemoryFeatures.State?
+        @Presents var editMemory: EditMemoryFeature.State?
+        @Presents var editRoutine: EditDailyRoutineFeature.State?
+        
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
@@ -44,10 +47,14 @@ struct HomeFeature {
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
+        case editRoutine(PresentationAction<EditDailyRoutineFeature.Action>)
+        case editRoutineButtonTapped(dailyRoutineType: DailyRoutineType)
         
         case addMemory(PresentationAction<AddMemoryFeatures.Action>)
         case addMemoryButtonTapped
         case fetchMemory
+        case savedMemoryButtonTapped
+        case editMemory(PresentationAction<EditMemoryFeature.Action>)
     }
     
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
@@ -146,6 +153,21 @@ struct HomeFeature {
                 }
                 
                 return .none
+            case .savedMemoryButtonTapped:
+                guard
+                    let selectedDateMemory = state.selectedDateMemory
+                else {
+                    return .none
+                }
+                
+                state.editMemory = EditMemoryFeature.State(memory: selectedDateMemory)
+                
+                return .none
+            case .editRoutineButtonTapped(let dailyRoutineType):
+                if let record = dailyRoutineType == .morning ? state.morningDailyRoutineRecord : state.nightDailyRoutineRecord {
+                    state.editRoutine = EditDailyRoutineFeature.State(record: record)
+                }
+                return .none
             default:
                 return .none
             }
@@ -155,6 +177,12 @@ struct HomeFeature {
         }
         .ifLet(\.$addMemory, action: \.addMemory) {
             AddMemoryFeatures()
+        }
+        .ifLet(\.$editMemory, action: \.editMemory) {
+            EditMemoryFeature()
+        }
+        .ifLet(\.$editRoutine, action: \.editRoutine) {
+            EditDailyRoutineFeature()
         }
     }
 }

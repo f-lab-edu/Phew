@@ -13,13 +13,15 @@ class Memory {
     @Attribute(.unique) var id: String
     var date: Date
     var text: String
-    var images: [String]?
+    var images: [Data]?
+    var isGoodMemory: Bool
     
-    init(date: Date, text: String, images: [String]? = nil) {
+    init(date: Date, text: String, images: [Data]? = nil, isGoodMemory: Bool) {
         self.id = Memory.makeID(date: date)
         self.date = date
         self.text = text
         self.images = images
+        self.isGoodMemory = isGoodMemory
     }
     
     static func makeID(date: Date) -> String {

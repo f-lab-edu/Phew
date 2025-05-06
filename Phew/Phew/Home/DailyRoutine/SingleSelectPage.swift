@@ -26,14 +26,14 @@ struct SingleSelectPage: View {
                         .frame(width: 60, height: 60)
                         .background(
                             selectedItem == item
-                            ? Color.blue.opacity(0.2)
+                            ? Color.green.opacity(0.2)
                             : Color.gray.opacity(0.1)
                         )
                         .clipShape(Circle())
                         .overlay {
                             if selectedItem == item {
                                 Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.green)
                                     .offset(x: 20, y: -20)
                             }
                         }
