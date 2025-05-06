@@ -7,6 +7,9 @@
 
 import SwiftUI
 import ComposableArchitecture
+import OSLog
+
+private let logger = Logger(subsystem: "Phew", category: "AddMemoryFeatures")
 
 @Reducer
 struct AddMemoryFeatures {
@@ -43,7 +46,8 @@ struct AddMemoryFeatures {
                     do {
                         try addMemory(memory)
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("일기 데이터 저장 오류 발생: \(error.localizedDescription)")
                     }
                     
                     await send(.delegate(.save(memory)))

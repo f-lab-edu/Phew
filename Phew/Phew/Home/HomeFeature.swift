@@ -73,7 +73,8 @@ struct HomeFeature {
                         state.morningDailyRoutineRecord = try fetchDailyRoutine(selectedDate, .morning)
                         state.morningDailyRoutineCache[selectedDate.monthAndDay()] = state.morningDailyRoutineRecord
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("아침 루틴 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
 
@@ -84,7 +85,8 @@ struct HomeFeature {
                         state.nightDailyRoutineRecord = try fetchDailyRoutine(selectedDate, .night)
                         state.nightDailyRoutineCache[selectedDate.monthAndDay()] = state.nightDailyRoutineRecord
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("저녘 루틴 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
 
@@ -148,7 +150,8 @@ struct HomeFeature {
                         state.selectedDateMemory = try fetchMemory(selectedDate)
                         state.memoryCache[selectedDate.monthAndDay()] = state.selectedDateMemory
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("일기 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
                 

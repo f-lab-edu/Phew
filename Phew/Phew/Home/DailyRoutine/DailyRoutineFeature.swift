@@ -7,6 +7,9 @@
 
 import SwiftUI
 import ComposableArchitecture
+import OSLog
+
+private let logger = Logger(subsystem: "Phew", category: "DailyRoutineFeature")
 
 @Reducer
 struct DailyRoutineFeature {
@@ -73,7 +76,8 @@ struct DailyRoutineFeature {
                     do {
                         try addDailyRoutine(dailyRoutineRecord)
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("루틴 추가 오류 발생: \(error.localizedDescription)")
                     }
                     
                     await send(.delegate(.save(dailyRoutineRecord)))
