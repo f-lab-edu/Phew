@@ -9,19 +9,11 @@ import SwiftUI
 import ComposableArchitecture
 
 struct MemoryDetailView: View {
-    var store: StoreOf<EditMemoryFeature>
+    @Bindable var store: StoreOf<MemoryDetailFeature>
     
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Spacer()
-                    
-                    CloseButton {
-                        store.send(.closeButtonTapped)
-                    }
-                }
-                
                 if let data = store.firstImageData,
                    let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
@@ -34,6 +26,41 @@ struct MemoryDetailView: View {
                 Text(store.state.memory.text)
             }
             .padding(.horizontal)
+        }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button(action: {
+                    store.send(.closeButtonTapped)
+                }) {
+                    Image(systemName: "chevron.left")
+                }
+            }
+            
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(action: {
+                        store.send(.editButtonTapped)
+                    }) {
+                        Label("Edit", systemImage: "pencil")
+                    }
+                    
+                    Button(role: .destructive, action: {
+                        
+                    }) {
+                        Label("Delete", systemImage: "trash")
+                    }
+                } label: {
+                    Text("More")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.black)
+                }
+            }
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.editMemory, action: \.showMemoryEditor)
+        ) { store in
+            MemoryEditorView(store: store)
         }
     }
 }
