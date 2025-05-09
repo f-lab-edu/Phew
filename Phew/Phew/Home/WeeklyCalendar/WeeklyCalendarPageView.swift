@@ -32,14 +32,14 @@ struct WeeklyCalendarPageView: View {
                         .font(.title3)
                         .foregroundColor(
                             Calendar.current.isDateInToday(date)
-                            ? .blue
+                            ? .green
                             : .primary
                         )
                         .background(
                             Circle()
                                 .fill(
                                     Calendar.current.isDate(date, inSameDayAs: store.state.selectedDate)
-                                    ? .green.opacity(0.5)
+                                    ? .green.opacity(0.2)
                                     : .gray.opacity(0.1)
                                 )
                         )

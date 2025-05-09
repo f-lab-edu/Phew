@@ -7,6 +7,9 @@
 
 import SwiftUI
 import ComposableArchitecture
+import OSLog
+
+private let logger = Logger(subsystem: "Phew", category: "AddMemoryFeatures")
 
 @Reducer
 struct AddMemoryFeatures {
@@ -16,7 +19,7 @@ struct AddMemoryFeatures {
     }
 
     enum Action {
-        case saveButtonTapped(String)
+        case saveButtonTapped(text: String, imageData: Data, isGoodMemory: Bool)
         case closeButtonTapped
         case delegate(Delegate)
         
@@ -31,17 +34,20 @@ struct AddMemoryFeatures {
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .saveButtonTapped(let text):
+            case .saveButtonTapped(let text, let imageData, let isGoodMemory):
                 return .run { [state] send in
                     let memory = Memory(
                         date: state.selectedDate,
-                        text: text
+                        text: text,
+                        images: [imageData],
+                        isGoodMemory: isGoodMemory
                     )
 
                     do {
                         try addMemory(memory)
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("일기 데이터 저장 오류 발생: \(error.localizedDescription)")
                     }
                     
                     await send(.delegate(.save(memory)))

@@ -19,5 +19,6 @@ struct AppTabView: View {
                     .tabItem { screen.label }
             }
         }
+        .tint(.black.opacity(0.5))
     }
 }

@@ -11,7 +11,7 @@ struct CloseButton: View {
     var action: () -> Void
     var iconName: String = "xmark"
     var foregroundColor: Color = .black
-    var backgroundColor: Color = Color.gray.opacity(0.2)
+    var backgroundColor: Color = .white
     
     var body: some View {
         Button(action: action) {

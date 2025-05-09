@@ -18,6 +18,9 @@ struct HomeFeature {
     struct State: Equatable {
         @Presents var addRoutine: DailyRoutineFeature.State?
         @Presents var addMemory: AddMemoryFeatures.State?
+        @Presents var editMemory: EditMemoryFeature.State?
+        @Presents var editRoutine: EditDailyRoutineFeature.State?
+        
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
@@ -44,10 +47,14 @@ struct HomeFeature {
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
+        case editRoutine(PresentationAction<EditDailyRoutineFeature.Action>)
+        case editRoutineButtonTapped(dailyRoutineType: DailyRoutineType)
         
         case addMemory(PresentationAction<AddMemoryFeatures.Action>)
         case addMemoryButtonTapped
         case fetchMemory
+        case savedMemoryButtonTapped
+        case editMemory(PresentationAction<EditMemoryFeature.Action>)
     }
     
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
@@ -66,7 +73,8 @@ struct HomeFeature {
                         state.morningDailyRoutineRecord = try fetchDailyRoutine(selectedDate, .morning)
                         state.morningDailyRoutineCache[selectedDate.monthAndDay()] = state.morningDailyRoutineRecord
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("아침 루틴 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
 
@@ -77,7 +85,8 @@ struct HomeFeature {
                         state.nightDailyRoutineRecord = try fetchDailyRoutine(selectedDate, .night)
                         state.nightDailyRoutineCache[selectedDate.monthAndDay()] = state.nightDailyRoutineRecord
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("저녘 루틴 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
 
@@ -141,10 +150,26 @@ struct HomeFeature {
                         state.selectedDateMemory = try fetchMemory(selectedDate)
                         state.memoryCache[selectedDate.monthAndDay()] = state.selectedDateMemory
                     } catch {
-                        // 에러 처리
+                        // TODO: - 에러 처리
+                        logger.error("일기 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
                 
+                return .none
+            case .savedMemoryButtonTapped:
+                guard
+                    let selectedDateMemory = state.selectedDateMemory
+                else {
+                    return .none
+                }
+                
+                state.editMemory = EditMemoryFeature.State(memory: selectedDateMemory)
+                
+                return .none
+            case .editRoutineButtonTapped(let dailyRoutineType):
+                if let record = dailyRoutineType == .morning ? state.morningDailyRoutineRecord : state.nightDailyRoutineRecord {
+                    state.editRoutine = EditDailyRoutineFeature.State(record: record)
+                }
                 return .none
             default:
                 return .none
@@ -155,6 +180,12 @@ struct HomeFeature {
         }
         .ifLet(\.$addMemory, action: \.addMemory) {
             AddMemoryFeatures()
+        }
+        .ifLet(\.$editMemory, action: \.editMemory) {
+            EditMemoryFeature()
+        }
+        .ifLet(\.$editRoutine, action: \.editRoutine) {
+            EditDailyRoutineFeature()
         }
     }
 }
