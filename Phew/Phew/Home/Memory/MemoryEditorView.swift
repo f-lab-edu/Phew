@@ -1,5 +1,5 @@
 //
-//  AddMemoryView.swift
+//  MemoryEditorView.swift
 //  Phew
 //
 //  Created by dong eun shin on 5/4/25.
@@ -9,29 +9,15 @@ import SwiftUI
 import PhotosUI
 import ComposableArchitecture
 
-struct AddMemoryView: View {
-    @State var text: String = ""
-    @State private var selectedItem: PhotosPickerItem?
-    @State private var selectedImage: UIImage?
+struct MemoryEditorView: View {
+    let store: StoreOf<MemoryEditorFeatures>
+    @ObservedObject var viewStore: ViewStoreOf<MemoryEditorFeatures>
     
-    enum MemoryEmotion: String, CaseIterable, Identifiable {
-        case remember
-        case forget
-
-        var id: String { self.rawValue }
-
-        var description: String {
-            switch self {
-            case .remember: return "Keep it in my heart"
-            case .forget: return "Let it fade away"
-            }
-        }
+    init(store: StoreOf<MemoryEditorFeatures>) {
+        self.store = store
+        self.viewStore = ViewStore(store, observe: { $0 })
     }
-
-    @State private var selectedEmotion: MemoryEmotion = .remember
-    
-    var store: StoreOf<AddMemoryFeatures>
-    
+        
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
@@ -50,7 +36,13 @@ struct AddMemoryView: View {
                 
                 textEditorWithPlaceholder()
                 
-                Picker("How would you like to keep this memory?", selection: $selectedEmotion) {
+                Picker(
+                    "How would you like to keep this memory?",
+                    selection: viewStore.binding(
+                        get: \.isGoodMemory,
+                        send: MemoryEditorFeatures.Action.isGoodMemoryChanged
+                    )
+                ) {
                     ForEach(MemoryEmotion.allCases) { emotion in
                         Text(emotion.description).tag(emotion)
                     }
@@ -67,12 +59,12 @@ struct AddMemoryView: View {
                 .padding()
                 .cornerRadius(16)
         }
-        .onChange(of: selectedItem) { oldItem, newItem in
+        .onChange(of: viewStore.selectedItem) { oldItem, newItem in
             if let newItem {
                 Task {
                     if let data = try? await newItem.loadTransferable(type: Data.self),
                        let uiImage = UIImage(data: data) {
-                        selectedImage = uiImage
+                        store.send(.selectedImageChanged(uiImage))
                     }
                 }
             }
@@ -93,7 +85,7 @@ struct AddMemoryView: View {
     
     @ViewBuilder
     private func selectedImageWithCloseButton() -> some View {
-        if let image = selectedImage {
+        if let image = store.selectedImage {
             Image(uiImage: image)
                 .resizable()
                 .scaledToFit()
@@ -101,8 +93,8 @@ struct AddMemoryView: View {
                 .cornerRadius(12)
                 .overlay(alignment: .topTrailing) {
                     Button {
-                        selectedImage = nil
-                        selectedItem = nil
+                        store.send(.selectedImageChanged(nil))
+                        store.send(.selectedImageChanged(nil))
                     } label: {
                         Image(systemName: "xmark")
                             .foregroundColor(.white)
@@ -113,17 +105,22 @@ struct AddMemoryView: View {
                     }
                 }
                 .transition(.opacity)
-                .animation(.easeInOut, value: selectedImage)
+                .animation(.easeInOut, value: store.selectedImage)
         }
     }
     
     @ViewBuilder
     private func textEditorWithPlaceholder() -> some View {
         ZStack(alignment: .topLeading) {
-            TextEditor(text: $text)
-                .background(Color.clear)
+            TextEditor(text:
+                viewStore.binding(
+                    get: \.text,
+                    send: MemoryEditorFeatures.Action.textChanged
+                )
+            )
+            .background(Color.clear)
             
-            if text.isEmpty {
+            if store.text.isEmpty {
                 Text("Type here...")
                     .foregroundColor(.gray)
                     .padding(.top, 8)
@@ -137,7 +134,10 @@ struct AddMemoryView: View {
     @ViewBuilder
     private func photosPicker() -> some View {
         PhotosPicker(
-            selection: $selectedItem,
+            selection: viewStore.binding(
+                get: \.selectedItem,
+                send: MemoryEditorFeatures.Action.selectedItemChanged
+            ),
             matching: .images,
             photoLibrary: .shared()
         ) {
@@ -154,34 +154,26 @@ struct AddMemoryView: View {
     
     private var saveButton: some View {
         Button {
-            if let data = selectedImage?.jpegData(compressionQuality: 0.8) {
-                store.send(
-                    .saveButtonTapped(
-                        text: text,
-                        imageData: data,
-                        isGoodMemory: selectedEmotion == .remember ? true : false
-                    )
-                )
-            }
+            store.send(.saveButtonTapped)
         } label: {
             Image(systemName: "checkmark")
                 .font(.system(size: 24, weight: .bold))
                 .foregroundColor(.white)
                 .frame(width: 50, height: 50)
-                .background(text.isEmpty ? .gray.opacity(0.5) : .green)
+                .background(viewStore.isSaveButtonDisabled ? .gray.opacity(0.5) : .green)
                 .clipShape(Circle())
                 .shadow(radius: 4)
         }
-        .disabled(text.isEmpty)
+        .disabled(viewStore.isSaveButtonDisabled)
     }
 }
 
 #Preview {
-    AddMemoryView(
+    MemoryEditorView(
         store: .init(
-            initialState: AddMemoryFeatures.State.init(selectedDate: .now),
+            initialState: MemoryEditorFeatures.State.init(selectedDate: .now, mode: .add),
             reducer: {
-                AddMemoryFeatures()
+                MemoryEditorFeatures()
             }
         )
     )

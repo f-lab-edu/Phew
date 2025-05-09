@@ -13,18 +13,20 @@ struct MemoryDatabase {
     var fetchOneBy: @Sendable (_ id: String) throws -> Memory?
     var add: @Sendable (Memory) throws -> Void
     var deleteAll: @Sendable () throws -> Void
+    var deleteOneBy: @Sendable (_ id: String) throws -> Void
+    var updateOneBy: @Sendable (_ id: String, _ memory: Memory) throws -> Void
 }
 
 extension MemoryDatabase: DependencyKey {
     static let liveValue = Self(
         fetchOneBy: { id in
             @Dependency(\.modelContextProvider.context) var context
-            let movieContext = try context()
+            let memoryContext = try context()
             
             let predicate = #Predicate<Memory> { $0.id == id }
             let descriptor = FetchDescriptor<Memory>(predicate: predicate)
 
-            return try movieContext.fetch(descriptor).first
+            return try memoryContext.fetch(descriptor).first
         },
         add: { memory in
             @Dependency(\.modelContextProvider.context) var context
@@ -44,6 +46,33 @@ extension MemoryDatabase: DependencyKey {
             }
 
             try memoryContext.save()
+        },
+        deleteOneBy: { id in
+            @Dependency(\.modelContextProvider.context) var context
+            let memoryContext = try context()
+            
+            let predicate = #Predicate<Memory> { $0.id == id }
+            let descriptor = FetchDescriptor<Memory>(predicate: predicate)
+            
+            if let memory = try memoryContext.fetch(descriptor).first {
+                memoryContext.delete(memory)
+                try memoryContext.save()
+            }
+        },
+        updateOneBy: { id, memory in
+            @Dependency(\.modelContextProvider.context) var context
+            let memoryContext = try context()
+            
+            let predicate = #Predicate<Memory> { $0.id == id }
+            let descriptor = FetchDescriptor<Memory>(predicate: predicate)
+            
+            if let fetchedMemory = try memoryContext.fetch(descriptor).first {
+                fetchedMemory.text = memory.text
+                fetchedMemory.images = memory.images
+                fetchedMemory.isGoodMemory = memory.isGoodMemory
+                
+                try memoryContext.save()
+            }
         }
     )
 }

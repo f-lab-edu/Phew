@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import ComposableArchitecture
 
-enum AppScreen: Codable, Hashable, Identifiable, CaseIterable {
+enum AppScreen: String, CaseIterable, Identifiable, Hashable, Sendable {
     case calendar
     case status
     case account

@@ -11,6 +11,7 @@ import Dependencies
 struct MomoryRepository {
     var fetchMemory: @Sendable (Date) throws -> Memory?
     var addMemory: @Sendable (_ memory: Memory) throws -> Void
+    var updateMemory: @Sendable (_ memory: Memory) throws -> Void
 }
 
 extension MomoryRepository: DependencyKey {
@@ -21,9 +22,17 @@ extension MomoryRepository: DependencyKey {
             let id = date.monthAndDay()
             
             return try database.fetchOneBy(id)
-        }, addMemory: { record in
+        },
+        addMemory: { record in
             @Dependency(\.memoryDatabase) var database
 
             try database.add(record)
-    })
+        },
+        updateMemory: { memory in
+            @Dependency(\.memoryDatabase) var database
+            
+            let id = memory.date.monthAndDay()
+            
+            try database.updateOneBy(id, memory)
+        })
 }
