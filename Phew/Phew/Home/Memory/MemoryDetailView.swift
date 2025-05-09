@@ -22,7 +22,7 @@ struct MemoryDetailView: View {
                     }
                 }
                 
-                if let data = store.state.memory.images?.first,
+                if let data = store.firstImageData,
                    let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()

@@ -13,6 +13,9 @@ struct EditMemoryFeature {
     @ObservableState
     struct State: Equatable {
         var memory: Memory
+        var firstImageData: Data? {
+            memory.images?.first
+        }
     }
 
     enum Action {
