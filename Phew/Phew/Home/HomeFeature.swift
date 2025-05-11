@@ -17,9 +17,9 @@ struct HomeFeature {
     @ObservableState
     struct State: Equatable {
         @Presents var addRoutine: DailyRoutineFeature.State?
-        @Presents var addMemory: AddMemoryFeatures.State?
-        @Presents var editMemory: EditMemoryFeature.State?
-        @Presents var editRoutine: EditDailyRoutineFeature.State?
+        @Presents var addMemory: MemoryEditorFeatures.State?
+        @Presents var memoryDetail: MemoryDetailFeature.State?
+        @Presents var routineDetail: EditDailyRoutineFeature.State?
         
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
@@ -31,7 +31,12 @@ struct HomeFeature {
         var morningDailyRoutineCache: [String: DailyRoutineRecord] = [:]
         var nightDailyRoutineCache: [String: DailyRoutineRecord] = [:]
         
-        var selectedDateMemory: Memory?
+        var selectedDateMemory: Memory? {
+            didSet {
+                guard let date = selectedDateMemory?.date.monthAndDay() else { return }
+                memoryCache[date] = selectedDateMemory
+            }
+        }
         var memoryCache: [String: Memory] = [:]
     }
 
@@ -47,14 +52,14 @@ struct HomeFeature {
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
-        case editRoutine(PresentationAction<EditDailyRoutineFeature.Action>)
-        case editRoutineButtonTapped(dailyRoutineType: DailyRoutineType)
+        case showRoutineDetail(PresentationAction<EditDailyRoutineFeature.Action>)
+        case routineDetailButtonTapped(dailyRoutineType: DailyRoutineType)
         
-        case addMemory(PresentationAction<AddMemoryFeatures.Action>)
+        case addMemory(PresentationAction<MemoryEditorFeatures.Action>)
         case addMemoryButtonTapped
         case fetchMemory
         case savedMemoryButtonTapped
-        case editMemory(PresentationAction<EditMemoryFeature.Action>)
+        case showMemoryDetail(PresentationAction<MemoryDetailFeature.Action>)
     }
     
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
@@ -135,7 +140,10 @@ struct HomeFeature {
             case .addRoutine:
                 return .none
             case .addMemoryButtonTapped:
-                state.addMemory = AddMemoryFeatures.State(selectedDate: state.selectedDate)
+                state.addMemory = MemoryEditorFeatures.State(
+                    selectedDate: state.selectedDate,
+                    mode: .add
+                )
                 return .none
             case .addMemory(.presented(.delegate(.save(let memory)))):
                 state.selectedDateMemory = memory
@@ -148,7 +156,6 @@ struct HomeFeature {
                 } else {
                     do {
                         state.selectedDateMemory = try fetchMemory(selectedDate)
-                        state.memoryCache[selectedDate.monthAndDay()] = state.selectedDateMemory
                     } catch {
                         // TODO: - 에러 처리
                         logger.error("일기 데이터 불러오기 오류 발생: \(error.localizedDescription)")
@@ -163,13 +170,16 @@ struct HomeFeature {
                     return .none
                 }
                 
-                state.editMemory = EditMemoryFeature.State(memory: selectedDateMemory)
+                state.memoryDetail = MemoryDetailFeature.State(memory: selectedDateMemory)
                 
                 return .none
-            case .editRoutineButtonTapped(let dailyRoutineType):
+            case .routineDetailButtonTapped(let dailyRoutineType):
                 if let record = dailyRoutineType == .morning ? state.morningDailyRoutineRecord : state.nightDailyRoutineRecord {
-                    state.editRoutine = EditDailyRoutineFeature.State(record: record)
+                    state.routineDetail = EditDailyRoutineFeature.State(record: record)
                 }
+                return .none
+            case .showMemoryDetail(.presented(.delegate(.update(let memory)))):
+                state.selectedDateMemory = memory
                 return .none
             default:
                 return .none
@@ -179,12 +189,12 @@ struct HomeFeature {
             DailyRoutineFeature()
         }
         .ifLet(\.$addMemory, action: \.addMemory) {
-            AddMemoryFeatures()
+            MemoryEditorFeatures()
         }
-        .ifLet(\.$editMemory, action: \.editMemory) {
-            EditMemoryFeature()
+        .ifLet(\.$memoryDetail, action: \.showMemoryDetail) {
+            MemoryDetailFeature()
         }
-        .ifLet(\.$editRoutine, action: \.editRoutine) {
+        .ifLet(\.$routineDetail, action: \.showRoutineDetail) {
             EditDailyRoutineFeature()
         }
     }

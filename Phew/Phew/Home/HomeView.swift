@@ -11,8 +11,7 @@ import ComposableArchitecture
 struct HomeView: View {
     let store: StoreOf<HomeFeature>
     @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
-
-
+    
     init(store: StoreOf<HomeFeature>) {
         self.store = store
         self.viewStore = ViewStore(store, observe: { $0 })

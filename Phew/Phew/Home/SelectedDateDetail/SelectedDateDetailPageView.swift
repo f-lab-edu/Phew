@@ -21,10 +21,12 @@ struct SelectedDateDetailPageView: View {
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            dailyRoutineButtons()
-            
-            memoryButtons()
+        NavigationStack {
+            VStack(spacing: 0) {
+                dailyRoutineButtons()
+                
+                memoryButtons()
+            }
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .onAppear {
@@ -39,17 +41,17 @@ struct SelectedDateDetailPageView: View {
         .fullScreenCover(
             item: $store.scope(state: \.addMemory, action: \.addMemory)
         ) { store in
-            AddMemoryView(store: store)
+            MemoryEditorView(store: store)
         }
         .fullScreenCover(
-            item: $store.scope(state: \.editMemory, action: \.editMemory)
-        ) { store in
-            MemoryDetailView(store: store)
-        }
-        .fullScreenCover(
-            item: $store.scope(state: \.editRoutine, action: \.editRoutine)
+            item: $store.scope(state: \.routineDetail, action: \.showRoutineDetail)
         ) { store in
             DailyRoutineDetailView(store: store)
+        }
+        .navigationDestination(
+            item: $store.scope(state: \.memoryDetail, action: \.showMemoryDetail))
+        { store in
+            MemoryDetailView(store: store)
         }
     }
     
@@ -109,7 +111,7 @@ struct SelectedDateDetailPageView: View {
     @ViewBuilder
     func editRoutineButton(dailyRoutineRecord: DailyRoutineRecord) -> some View {
         Button {
-            store.send(.editRoutineButtonTapped(dailyRoutineType: dailyRoutineRecord.dailyRoutineType))
+            store.send(.routineDetailButtonTapped(dailyRoutineType: dailyRoutineRecord.dailyRoutineType))
         } label: {
             VStack {
                 Text(dailyRoutineRecord.responses.compactMap { $0.answerText?.toEmoji() }.reduce("", +))
