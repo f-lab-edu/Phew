@@ -61,9 +61,16 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         }
 
         func viewController(for date: Date) -> UIViewController {
+            let state = HomeFeature.State(
+                selectedDate: date,
+                currentWeekStartDate: Calendar.current.dateInterval(of: .weekOfYear, for: date)?.start ?? date
+            )
+            let newStore: StoreOf<HomeFeature> = .init(initialState: state) {
+                HomeFeature()
+            }
             let vc = UIHostingController(
                 rootView: SelectedDateDetailPageView(
-                    store: self.store,
+                    store: newStore,
                     date: date
                 )
             )
