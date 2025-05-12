@@ -7,6 +7,7 @@
 
 import SwiftUI
 import PhotosUI
+import PhewComponent
 import ComposableArchitecture
 
 struct MemoryEditorView: View {
