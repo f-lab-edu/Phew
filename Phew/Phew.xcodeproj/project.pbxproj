@@ -40,7 +40,7 @@
 		7C0E30662DB91282004D0DD6 = {
 			isa = PBXGroup;
 			children = (
-				7C1D17982DD1BAE6004985FA /* PhewComponent */,
+				7C8F66912DD2576800514CC7 /* Modules */,
 				7C0E30712DB91282004D0DD6 /* Phew */,
 				7C1D17912DD1B7CB004985FA /* Frameworks */,
 				7C0E30702DB91282004D0DD6 /* Products */,
@@ -60,6 +60,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7C8F66912DD2576800514CC7 /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				7C1D17982DD1BAE6004985FA /* PhewComponent */,
+			);
+			path = Modules;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
