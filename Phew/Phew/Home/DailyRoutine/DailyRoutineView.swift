@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhewComponent
 import ComposableArchitecture
 
 struct DailyRoutineView: View {

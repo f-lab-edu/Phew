@@ -6,8 +6,9 @@
 //
 
 import SwiftUI
-import ComposableArchitecture
+import PhewComponent
 import SwiftData
+import ComposableArchitecture
 
 struct SelectedDateDetailPageView: View {
     @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
@@ -159,7 +160,7 @@ struct SelectedDateDetailPageView: View {
                 Image(systemName: "plus.circle")
                     .resizable()
                     .frame(width: 50, height: 50)
-                    .foregroundColor(.white)
+                    .foregroundStyle(PhewColor.backgroundColor)
                     .background(Circle().fill(Color.green))
             }
         }
@@ -167,7 +168,7 @@ struct SelectedDateDetailPageView: View {
         .background(
             RoundedRectangle(cornerRadius: 16)
                 .stroke(Color.green, lineWidth: 2)
-                .background(Color.white)
+                .background(PhewColor.backgroundColor)
                 .clipShape(RoundedRectangle(cornerRadius: 16))
                 .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 4)
         )
@@ -205,7 +206,7 @@ struct SelectedDateDetailPageView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding()
-            .background(Color.white)
+            .background(PhewColor.backgroundColor)
             .cornerRadius(16)
             .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 4)
         }

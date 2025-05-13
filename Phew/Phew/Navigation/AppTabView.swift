@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import PhewComponent
 import SwiftData
 
 struct AppTabView: View {
@@ -19,6 +20,6 @@ struct AppTabView: View {
                     .tabItem { screen.label }
             }
         }
-        .tint(.black.opacity(0.5))
+        .tint(PhewColor.primaryGreen)
     }
 }
