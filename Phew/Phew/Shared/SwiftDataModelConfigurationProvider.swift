@@ -5,8 +5,8 @@
 //  Created by dong eun shin on 4/28/25.
 //
 
-import SwiftData
 import Dependencies
+import SwiftData
 
 struct ModelContextProvider {
     var context: () throws -> ModelContext

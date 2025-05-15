@@ -5,8 +5,8 @@
 //  Created by dong eun shin on 5/6/25.
 //
 
-import SwiftUI
 import ComposableArchitecture
+import SwiftUI
 
 @Reducer
 struct EditDailyRoutineFeature {
@@ -23,11 +23,11 @@ struct EditDailyRoutineFeature {
             case save(DailyRoutineRecord)
         }
     }
-    
+
     @Dependency(\.dismiss) var dismiss
-    
+
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
+        Reduce { _, action in
             switch action {
             case .closeButtonTapped:
                 return .run { _ in await self.dismiss() }

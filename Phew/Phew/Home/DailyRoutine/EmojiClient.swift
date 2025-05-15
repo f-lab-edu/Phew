@@ -5,8 +5,8 @@
 //  Created by dong eun shin on 5/2/25.
 //
 
-import Foundation
 import Dependencies
+import Foundation
 
 struct EmojiClient {
     var loadEmojis: @Sendable () throws -> [Emoji]?
@@ -20,7 +20,7 @@ extension EmojiClient: DependencyKey {
                 let data = try? Data(contentsOf: url),
                 let emojis = try? JSONDecoder().decode([Emoji].self, from: data)
             else {
-                    return nil
+                return nil
             }
             return emojis
         }

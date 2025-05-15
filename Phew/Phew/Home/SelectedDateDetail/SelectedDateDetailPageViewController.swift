@@ -5,12 +5,12 @@
 //  Created by dong eun shin on 4/25/25.
 //
 
-import SwiftUI
 import ComposableArchitecture
+import SwiftUI
 
 struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
     let store: StoreOf<HomeFeature>
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
@@ -25,7 +25,7 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         pvc.setViewControllers([initialVC], direction: .forward, animated: false)
         pvc.dataSource = context.coordinator
         pvc.delegate = context.coordinator
-        
+
         return pvc
     }
 
@@ -33,17 +33,17 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         let selectedDate = store.state.selectedDate
         let previousDate = context.coordinator.previousDate
         let newVC = context.coordinator.viewController(for: selectedDate)
-        
+
         guard !Calendar.current.isDate(store.state.selectedDate, inSameDayAs: previousDate) else {
             return
         }
-        
+
         pageViewController.setViewControllers(
             [newVC],
             direction: store.state.selectedDate > previousDate ? .forward : .reverse,
             animated: context.coordinator.isUserInteraction ? false : true
         )
-        
+
         context.coordinator.previousDate = selectedDate
         context.coordinator.isUserInteraction = false
     }
@@ -53,11 +53,11 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         var previousDate: Date
         var isUserInteraction = false
         let store: StoreOf<HomeFeature>
-        
+
         init(_ parent: SelectedDateDetailPageViewController) {
             self.parent = parent
-            self.previousDate = parent.store.state.selectedDate
-            self.store = parent.store
+            previousDate = parent.store.state.selectedDate
+            store = parent.store
         }
 
         func viewController(for date: Date) -> UIViewController {
@@ -75,34 +75,34 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
                 )
             )
             vc.view.tag = Int(date.timeIntervalSince1970)
-            
+
             return vc
         }
 
-        func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
             let currentDate = Date(timeIntervalSince1970: TimeInterval(viewController.view.tag))
-            
+
             guard let previous = Calendar.current.date(byAdding: .day, value: -1, to: currentDate) else { return nil }
-            
+
             return self.viewController(for: previous)
         }
 
-        func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
             let currentDate = Date(timeIntervalSince1970: TimeInterval(viewController.view.tag))
-            
+
             guard let next = Calendar.current.date(byAdding: .day, value: 1, to: currentDate) else { return nil }
-            
+
             return self.viewController(for: next)
         }
-        
-        func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+
+        func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted completed: Bool) {
             guard
                 completed,
                 let currentVC = pageViewController.viewControllers?.first
             else { return }
 
             let newDate = Date(timeIntervalSince1970: TimeInterval(currentVC.view.tag))
-            
+
             if !Calendar.current.isDate(newDate, inSameDayAs: parent.store.state.selectedDate) {
                 store.send(.selectedDate(newDate))
                 if
@@ -114,8 +114,8 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
                 }
             }
         }
-        
-        func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+
+        func pageViewController(_: UIPageViewController, willTransitionTo _: [UIViewController]) {
             isUserInteraction = true
         }
     }

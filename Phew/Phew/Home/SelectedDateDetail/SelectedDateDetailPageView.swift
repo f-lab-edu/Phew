@@ -5,10 +5,10 @@
 //  Created by dong eun shin on 4/26/25.
 //
 
-import SwiftUI
+import ComposableArchitecture
 import PhewComponent
 import SwiftData
-import ComposableArchitecture
+import SwiftUI
 
 struct SelectedDateDetailPageView: View {
     @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
@@ -17,15 +17,15 @@ struct SelectedDateDetailPageView: View {
 
     init(store: StoreOf<HomeFeature>, date: Date) {
         self.store = store
-        self.viewStore = ViewStore(store, observe: { $0 })
+        viewStore = ViewStore(store, observe: { $0 })
         self.date = date
     }
-    
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 dailyRoutineButtons()
-                
+
                 memoryButtons()
             }
         }
@@ -55,7 +55,7 @@ struct SelectedDateDetailPageView: View {
             MemoryDetailView(store: store)
         }
     }
-    
+
     @ViewBuilder
     func dailyRoutineButtons() -> some View {
         HStack(spacing: 0) {
@@ -66,7 +66,7 @@ struct SelectedDateDetailPageView: View {
                     addRoutineButton(dailyRoutineType: .morning)
                 }
             }
-            
+
             Group {
                 if let nightDailyRoutine = viewStore.state.nightDailyRoutineRecord {
                     editRoutineButton(dailyRoutineRecord: nightDailyRoutine)
@@ -76,7 +76,7 @@ struct SelectedDateDetailPageView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     func addRoutineButton(dailyRoutineType: DailyRoutineType) -> some View {
         Button {
@@ -90,11 +90,11 @@ struct SelectedDateDetailPageView: View {
                 Image(systemName: dailyRoutineType == .morning ? "sun.max" : "moon")
                     .font(.system(size: 26, weight: .semibold))
                     .padding(2)
-                
+
                 Text(dailyRoutineType == .morning ? "Morning Magic" : "End Well")
                     .font(.headline)
                     .fontWeight(.bold)
-                
+
                 Text(dailyRoutineType == .morning ? "Start the day" : "Ready for tomorrow")
                     .font(.footnote)
             }
@@ -108,7 +108,7 @@ struct SelectedDateDetailPageView: View {
         .padding(.trailing, dailyRoutineType == .morning ? 8 : 16)
         .padding(.bottom)
     }
-    
+
     @ViewBuilder
     func editRoutineButton(dailyRoutineRecord: DailyRoutineRecord) -> some View {
         Button {
@@ -127,7 +127,7 @@ struct SelectedDateDetailPageView: View {
         .padding(.trailing, dailyRoutineRecord.dailyRoutineType == .morning ? 8 : 16)
         .padding(.bottom)
     }
-    
+
     @ViewBuilder
     func memoryButtons() -> some View {
         HStack(spacing: 0) {
@@ -140,7 +140,7 @@ struct SelectedDateDetailPageView: View {
             }
         }
     }
-    
+
     @ViewBuilder
     func addMemoryButton() -> some View {
         Button(action: {
@@ -153,10 +153,10 @@ struct SelectedDateDetailPageView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.green)
                         .padding(.top)
-                    
+
                     Spacer()
                 }
-                
+
                 Image(systemName: "plus.circle")
                     .resizable()
                     .frame(width: 50, height: 50)
@@ -174,7 +174,7 @@ struct SelectedDateDetailPageView: View {
         )
         .padding([.bottom, .horizontal])
     }
-    
+
     @ViewBuilder
     func editMemoryButton(memory: Memory) -> some View {
         Button(action: {
@@ -185,23 +185,24 @@ struct SelectedDateDetailPageView: View {
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.green)
-                
+
                 if let data = memory.images?.first,
-                   let uiImage = UIImage(data: data) {
+                   let uiImage = UIImage(data: data)
+                {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
                         .frame(height: 300)
                         .frame(maxWidth: .infinity)
                 }
-                
+
                 Text(memory.text)
                     .font(.body)
                     .foregroundColor(.black.opacity(0.7))
                     .foregroundColor(.primary)
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                
+
                 Spacer()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -224,10 +225,11 @@ struct SelectedDateDetailPageView: View {
 #Preview {
     SelectedDateDetailPageView(
         store: .init(
-            initialState: HomeFeature.State.init(),
+            initialState: HomeFeature.State(),
             reducer: {
                 HomeFeature()
-        }),
+            }
+        ),
         date: .now
     )
 }

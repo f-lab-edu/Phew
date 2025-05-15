@@ -5,33 +5,33 @@
 //  Created by dong eun shin on 4/26/25.
 //
 
-import SwiftUI
-import PhewComponent
 import ComposableArchitecture
+import PhewComponent
+import SwiftUI
 
 struct DailyRoutineView: View {
     @State private var localCurrentPage = 0
-    
+
     @ObservedObject var viewStore: ViewStoreOf<DailyRoutineFeature>
     @Bindable var store: StoreOf<DailyRoutineFeature>
 
     init(store: StoreOf<DailyRoutineFeature>) {
         self.store = store
-        self.viewStore = ViewStore(store, observe: { $0 })
+        viewStore = ViewStore(store, observe: { $0 })
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             VStack(spacing: 0) {
                 HStack {
                     Spacer()
-                    
+
                     CloseButton {
                         store.send(.closeButtonTapped)
                     }
                 }
                 .padding(.horizontal)
-                
+
                 ScrollViewReader { scrollProxy in
                     ZStack(alignment: .bottomTrailing) {
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -54,15 +54,15 @@ struct DailyRoutineView: View {
                         .onAppear {
                             store.send(.emojisLoaded)
                         }
-                        .onChange(of: localCurrentPage) { oldValue, newValue in
+                        .onChange(of: localCurrentPage) { _, newValue in
                             withAnimation(.easeInOut(duration: 0.5)) {
                                 scrollProxy.scrollTo(newValue, anchor: .leading)
                             }
                         }
-                        
+
                         HStack {
                             Spacer()
-                            
+
                             nextButton()
                                 .padding(.bottom, 40)
                         }
@@ -94,7 +94,7 @@ struct DailyRoutineView: View {
 #Preview {
     DailyRoutineView(
         store: .init(
-            initialState: DailyRoutineFeature.State.init(
+            initialState: DailyRoutineFeature.State(
                 dailyRoutineType: .morning,
                 selectedDate: .now
             ),

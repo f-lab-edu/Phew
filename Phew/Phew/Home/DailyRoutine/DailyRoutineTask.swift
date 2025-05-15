@@ -15,14 +15,14 @@ class DailyRoutineTask {
     var title: String
     var subTitle: String?
     var imageName: String?
-    
+
     enum DailyRoutineTaskType: String, Codable {
         case question
         case slider
         case quote
         case singleSelection
     }
-    
+
     init(id: UUID, taskType: DailyRoutineTaskType, title: String, subTitle: String? = nil, imageName: String? = nil) {
         self.id = id
         self.taskType = taskType

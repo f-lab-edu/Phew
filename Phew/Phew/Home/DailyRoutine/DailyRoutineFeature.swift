@@ -5,9 +5,9 @@
 //  Created by dong eun shin on 4/26/25.
 //
 
-import SwiftUI
 import ComposableArchitecture
 import OSLog
+import SwiftUI
 
 private let logger = Logger(subsystem: "Phew", category: "DailyRoutineFeature")
 
@@ -22,7 +22,7 @@ struct DailyRoutineFeature {
         var tasks: [DailyRoutineTask] = [
             DailyRoutineTask(id: UUID(), taskType: .singleSelection, title: "Question1"),
             DailyRoutineTask(id: UUID(), taskType: .singleSelection, title: "Question2"),
-            DailyRoutineTask(id: UUID(), taskType: .singleSelection, title: "Question3")
+            DailyRoutineTask(id: UUID(), taskType: .singleSelection, title: "Question3"),
         ]
         var selectedItemsPerPage: [Int: String] = [:]
     }
@@ -41,11 +41,11 @@ struct DailyRoutineFeature {
             case save(DailyRoutineRecord)
         }
     }
-    
+
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.dailyRoutineRepository.addDailyRoutine) var addDailyRoutine
     @Dependency(\.emojiClient.loadEmojis) var loadEmojis
-    
+
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
@@ -79,7 +79,7 @@ struct DailyRoutineFeature {
                         // TODO: - 에러 처리
                         logger.error("루틴 추가 오류 발생: \(error.localizedDescription)")
                     }
-                    
+
                     await send(.delegate(.save(dailyRoutineRecord)))
                     await self.dismiss()
                 }
@@ -94,9 +94,9 @@ struct DailyRoutineFeature {
                     else {
                         return .none
                     }
-                    
+
                     let convertedEmojis = emojis.flatMap { $0.unicodeScalars.compactMap { $0.toEmoji() } }
-                    
+
                     state.emojis = convertedEmojis
                 } catch {
                     // 에러 처리
@@ -105,7 +105,7 @@ struct DailyRoutineFeature {
             case let .setCurrentPage(page):
                 state.currentPage = page
                 return .none
-            case .setSelectedItemsPerPage(index: let index, selection: let selection):
+            case let .setSelectedItemsPerPage(index: index, selection: selection):
                 if let selection {
                     state.selectedItemsPerPage[index] = selection
                 }

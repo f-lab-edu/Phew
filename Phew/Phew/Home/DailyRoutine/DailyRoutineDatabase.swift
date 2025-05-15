@@ -5,9 +5,9 @@
 //  Created by dong eun shin on 4/29/25.
 //
 
+import Dependencies
 import Foundation
 import SwiftData
-import Dependencies
 
 struct DailyRoutineDatabase {
     var fetchOneBy: @Sendable (_ id: String) throws -> DailyRoutineRecord?
@@ -20,7 +20,7 @@ extension DailyRoutineDatabase: DependencyKey {
         fetchOneBy: { id in
             @Dependency(\.modelContextProvider.context) var context
             let movieContext = try context()
-            
+
             let predicate = #Predicate<DailyRoutineRecord> { $0.id == id }
             let descriptor = FetchDescriptor<DailyRoutineRecord>(predicate: predicate)
 
@@ -31,7 +31,7 @@ extension DailyRoutineDatabase: DependencyKey {
             let movieContext = try context()
 
             movieContext.insert(dailyRoutineRecord)
-            
+
             try movieContext.save()
         },
         deleteAll: {

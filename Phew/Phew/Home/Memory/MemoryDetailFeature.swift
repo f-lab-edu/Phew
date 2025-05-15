@@ -5,8 +5,8 @@
 //  Created by dong eun shin on 5/6/25.
 //
 
-import SwiftUI
 import ComposableArchitecture
+import SwiftUI
 
 @Reducer
 struct MemoryDetailFeature {
@@ -25,15 +25,15 @@ struct MemoryDetailFeature {
         case editButtonTapped
         case delegate(Delegate)
         case showMemoryEditor(PresentationAction<MemoryEditorFeatures.Action>)
-        
+
         enum Delegate {
             case update(Memory)
         }
     }
-    
+
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.memoryRepository.addMemory) var addMemory
-    
+
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
@@ -53,7 +53,7 @@ struct MemoryDetailFeature {
                     mode: .edit
                 )
                 return .none
-            case .showMemoryEditor(.presented(.delegate(.save(let memory)))):
+            case let .showMemoryEditor(.presented(.delegate(.save(memory)))):
                 state.memory = memory
                 return .none
             default:

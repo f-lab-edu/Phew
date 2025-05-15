@@ -5,10 +5,10 @@
 //  Created by dong eun shin on 4/29/25.
 //
 
-import SwiftUI
 import ComposableArchitecture
 import Dependencies
 import OSLog
+import SwiftUI
 
 private let logger = Logger(subsystem: "Phew", category: "HomeFeature")
 
@@ -20,48 +20,49 @@ struct HomeFeature {
         @Presents var addMemory: MemoryEditorFeatures.State?
         @Presents var memoryDetail: MemoryDetailFeature.State?
         @Presents var routineDetail: EditDailyRoutineFeature.State?
-        
+
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
-        
+
         var swipeDirection: UIPageViewController.NavigationDirection = .forward
         var currentWeekStartDate: Date = Date().startOfWeek()
-        
+
         var morningDailyRoutineCache: [String: DailyRoutineRecord] = [:]
         var nightDailyRoutineCache: [String: DailyRoutineRecord] = [:]
-        
+
         var selectedDateMemory: Memory? {
             didSet {
                 guard let date = selectedDateMemory?.date.monthAndDay() else { return }
                 memoryCache[date] = selectedDateMemory
             }
         }
+
         var memoryCache: [String: Memory] = [:]
     }
 
     enum Action {
         case selectedDate(Date)
         case setCurrentWeekStartDate(Date)
-        
+
         case moveToPreviousWeek
         case moveToNextWeek
         case setSwipeDirection(UIPageViewController.NavigationDirection)
-        
+
         case fetchSelectedDateDailyRoutineRecord
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
         case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
         case showRoutineDetail(PresentationAction<EditDailyRoutineFeature.Action>)
         case routineDetailButtonTapped(dailyRoutineType: DailyRoutineType)
-        
+
         case addMemory(PresentationAction<MemoryEditorFeatures.Action>)
         case addMemoryButtonTapped
         case fetchMemory
         case savedMemoryButtonTapped
         case showMemoryDetail(PresentationAction<MemoryDetailFeature.Action>)
     }
-    
+
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
     @Dependency(\.memoryRepository.fetchMemory) var fetchMemory
 
@@ -106,14 +107,14 @@ struct HomeFeature {
                     state.currentWeekStartDate = nextWeek
                 }
                 return .none
-            case .selectedDate(let date):
+            case let .selectedDate(date):
                 state.selectedDate = date
                 logger.debug("Selected Date: \(date.monthAndDay())")
                 return .none
-            case .setCurrentWeekStartDate(let date):
+            case let .setCurrentWeekStartDate(date):
                 state.currentWeekStartDate = date
                 return .none
-            case .setSwipeDirection(let direction):
+            case let .setSwipeDirection(direction):
                 state.swipeDirection = direction
                 return .none
             case .addMorningRoutineButtonTapped:
@@ -128,7 +129,7 @@ struct HomeFeature {
                     selectedDate: state.selectedDate
                 )
                 return .none
-            case .addRoutine(.presented(.delegate(.save(let record)))):
+            case let .addRoutine(.presented(.delegate(.save(record)))):
                 if record.dailyRoutineType == .morning {
                     state.morningDailyRoutineRecord = record
                     state.morningDailyRoutineCache[record.date.monthAndDay()] = record
@@ -145,7 +146,7 @@ struct HomeFeature {
                     mode: .add
                 )
                 return .none
-            case .addMemory(.presented(.delegate(.save(let memory)))):
+            case let .addMemory(.presented(.delegate(.save(memory)))):
                 state.selectedDateMemory = memory
                 return .none
             case .fetchMemory:
@@ -161,7 +162,7 @@ struct HomeFeature {
                         logger.error("일기 데이터 불러오기 오류 발생: \(error.localizedDescription)")
                     }
                 }
-                
+
                 return .none
             case .savedMemoryButtonTapped:
                 guard
@@ -169,16 +170,16 @@ struct HomeFeature {
                 else {
                     return .none
                 }
-                
+
                 state.memoryDetail = MemoryDetailFeature.State(memory: selectedDateMemory)
-                
+
                 return .none
-            case .routineDetailButtonTapped(let dailyRoutineType):
+            case let .routineDetailButtonTapped(dailyRoutineType):
                 if let record = dailyRoutineType == .morning ? state.morningDailyRoutineRecord : state.nightDailyRoutineRecord {
                     state.routineDetail = EditDailyRoutineFeature.State(record: record)
                 }
                 return .none
-            case .showMemoryDetail(.presented(.delegate(.update(let memory)))):
+            case let .showMemoryDetail(.presented(.delegate(.update(memory)))):
                 state.selectedDateMemory = memory
                 return .none
             default:

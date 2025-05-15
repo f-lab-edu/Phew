@@ -5,8 +5,8 @@
 //  Created by dong eun shin on 4/26/25.
 //
 
-import SwiftUI
 import ComposableArchitecture
+import SwiftUI
 
 struct WeeklyCalendarPageView: View {
     @ObservedObject var viewStore: ViewStoreOf<HomeFeature>
@@ -15,7 +15,7 @@ struct WeeklyCalendarPageView: View {
 
     init(store: StoreOf<HomeFeature>, week: [Date]) {
         self.store = store
-        self.viewStore = ViewStore(store, observe: { $0 })
+        viewStore = ViewStore(store, observe: { $0 })
         self.week = week
     }
 
@@ -26,27 +26,27 @@ struct WeeklyCalendarPageView: View {
                     Text(date.dayOfWeek())
                         .font(.caption)
                         .foregroundColor(.gray)
-                                        
+
                     Text(date.dayOfMonth())
                         .frame(width: 40, height: 40)
                         .font(.title3)
                         .foregroundColor(
                             Calendar.current.isDateInToday(date)
-                            ? .green
-                            : .primary
+                                ? .green
+                                : .primary
                         )
                         .background(
                             Circle()
                                 .fill(
                                     Calendar.current.isDate(date, inSameDayAs: store.state.selectedDate)
-                                    ? .green.opacity(0.2)
-                                    : .gray.opacity(0.1)
+                                        ? .green.opacity(0.2)
+                                        : .gray.opacity(0.1)
                                 )
                         )
                         .onTapGesture {
                             store.send(.selectedDate(date))
                         }
-                    
+
                     Spacer()
                 }
                 .frame(maxWidth: .infinity)
