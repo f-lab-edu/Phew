@@ -29,7 +29,10 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
         return pvc
     }
 
-    func updateUIViewController(_ pageViewController: UIPageViewController, context: Context) {
+    func updateUIViewController(
+        _ pageViewController: UIPageViewController,
+        context: Context
+    ) {
         let selectedDate = store.state.selectedDate
         let previousDate = context.coordinator.previousDate
         let newVC = context.coordinator.viewController(for: selectedDate)
@@ -79,7 +82,10 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             return vc
         }
 
-        func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        func pageViewController(
+            _: UIPageViewController,
+            viewControllerBefore viewController: UIViewController
+        ) -> UIViewController? {
             let currentDate = Date(timeIntervalSince1970: TimeInterval(viewController.view.tag))
 
             guard let previous = Calendar.current.date(byAdding: .day, value: -1, to: currentDate) else { return nil }
@@ -87,7 +93,10 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             return self.viewController(for: previous)
         }
 
-        func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        func pageViewController(
+            _: UIPageViewController,
+            viewControllerAfter viewController: UIViewController
+        ) -> UIViewController? {
             let currentDate = Date(timeIntervalSince1970: TimeInterval(viewController.view.tag))
 
             guard let next = Calendar.current.date(byAdding: .day, value: 1, to: currentDate) else { return nil }
@@ -95,7 +104,12 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             return self.viewController(for: next)
         }
 
-        func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted completed: Bool) {
+        func pageViewController(
+            _ pageViewController: UIPageViewController,
+            didFinishAnimating _: Bool,
+            previousViewControllers _: [UIViewController],
+            transitionCompleted completed: Bool
+        ) {
             guard
                 completed,
                 let currentVC = pageViewController.viewControllers?.first
@@ -115,7 +129,10 @@ struct SelectedDateDetailPageViewController: UIViewControllerRepresentable {
             }
         }
 
-        func pageViewController(_: UIPageViewController, willTransitionTo _: [UIViewController]) {
+        func pageViewController(
+            _: UIPageViewController,
+            willTransitionTo _: [UIViewController]
+        ) {
             isUserInteraction = true
         }
     }

@@ -43,7 +43,10 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
         return pvc
     }
 
-    func updateUIViewController(_ pageViewController: UIPageViewController, context: Context) {
+    func updateUIViewController(
+        _ pageViewController: UIPageViewController,
+        context: Context
+    ) {
         let coordinator = context.coordinator
 
         let previousWeekStartDate = coordinator.previousWeekStartDate
@@ -89,7 +92,10 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
             )
         }
 
-        func pageViewController(_: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+        func pageViewController(
+            _: UIPageViewController,
+            viewControllerBefore viewController: UIViewController
+        ) -> UIViewController? {
             guard let currentVC = viewController as? WeeklyHostingController else { return nil }
 
             guard
@@ -100,7 +106,10 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
             return self.viewController(for: previousWeek.generateWeek())
         }
 
-        func pageViewController(_: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+        func pageViewController(
+            _: UIPageViewController,
+            viewControllerAfter viewController: UIViewController
+        ) -> UIViewController? {
             guard let currentVC = viewController as? WeeklyHostingController else { return nil }
 
             guard
@@ -111,7 +120,12 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
             return self.viewController(for: nextWeek.generateWeek())
         }
 
-        func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating _: Bool, previousViewControllers _: [UIViewController], transitionCompleted completed: Bool) {
+        func pageViewController(
+            _ pageViewController: UIPageViewController,
+            didFinishAnimating _: Bool,
+            previousViewControllers _: [UIViewController],
+            transitionCompleted completed: Bool
+        ) {
             guard
                 completed,
                 let currentVC = pageViewController.viewControllers?.first as? WeeklyHostingController
@@ -125,7 +139,10 @@ struct WeeklyCalendarPageViewController: UIViewControllerRepresentable {
             }
         }
 
-        func pageViewController(_: UIPageViewController, willTransitionTo _: [UIViewController]) {
+        func pageViewController(
+            _: UIPageViewController,
+            willTransitionTo _: [UIViewController]
+        ) {
             isUserInteraction = true
         }
     }
