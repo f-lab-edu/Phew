@@ -26,8 +26,8 @@ struct SingleSelectPage: View {
                         .frame(width: 60, height: 60)
                         .background(
                             selectedItem == item
-                            ? Color.green.opacity(0.2)
-                            : Color.gray.opacity(0.1)
+                                ? Color.green.opacity(0.2)
+                                : Color.gray.opacity(0.1)
                         )
                         .clipShape(Circle())
                         .overlay {

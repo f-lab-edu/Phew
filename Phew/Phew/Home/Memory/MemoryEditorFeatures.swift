@@ -5,10 +5,10 @@
 //  Created by dong eun shin on 5/4/25.
 //
 
-import SwiftUI
-import PhotosUI
 import ComposableArchitecture
 import OSLog
+import PhotosUI
+import SwiftUI
 
 private let logger = Logger(subsystem: "Phew", category: "AddMemoryFeatures")
 
@@ -16,7 +16,7 @@ enum MemoryEmotion: String, CaseIterable, Identifiable {
     case remember
     case forget
 
-    var id: String { self.rawValue }
+    var id: String { rawValue }
 
     var description: String {
         switch self {
@@ -37,26 +37,27 @@ struct MemoryEditorFeatures {
         var selectedImage: UIImage?
         var selectedItem: PhotosPickerItem?
         var memory: Memory?
-        
+
         var isSaveButtonDisabled: Bool {
             text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
-                
+
         enum Mode {
             case add
             case edit
         }
-        
+
         init(selectedDate: Date, memory: Memory? = nil, mode: Mode) {
             self.selectedDate = selectedDate
             self.memory = memory
-            self.text = memory?.text ?? ""
+            text = memory?.text ?? ""
             self.mode = mode
-            self.isGoodMemory = (memory?.isGoodMemory ?? true) ? .remember : .forget
-            
-            if let imageData =  memory?.images?.first,
-               let image = UIImage(data: imageData) {
-                self.selectedImage = image
+            isGoodMemory = (memory?.isGoodMemory ?? true) ? .remember : .forget
+
+            if let imageData = memory?.images?.first,
+               let image = UIImage(data: imageData)
+            {
+                selectedImage = image
             }
         }
     }
@@ -69,22 +70,22 @@ struct MemoryEditorFeatures {
         case isGoodMemoryChanged(MemoryEmotion)
         case selectedImageChanged(UIImage?)
         case selectedItemChanged(PhotosPickerItem?)
-        
+
         enum Delegate {
             case save(Memory)
         }
     }
-    
+
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.memoryRepository) var memoryRepository
-    
+
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .saveButtonTapped:
                 return .run { [state] send in
                     let imageData = state.selectedImage?.jpegData(compressionQuality: 0.8)
-                    
+
                     let memory = Memory(
                         date: state.selectedDate,
                         text: state.text,
@@ -102,7 +103,7 @@ struct MemoryEditorFeatures {
                         // TODO: - 에러 처리
                         logger.error("일기 데이터 저장 오류 발생: \(error.localizedDescription)")
                     }
-                    
+
                     await send(.delegate(.save(memory)))
                     await self.dismiss()
                 }
@@ -110,16 +111,16 @@ struct MemoryEditorFeatures {
                 return .run { _ in await self.dismiss() }
             case .delegate:
                 return .none
-            case .textChanged(let newText):
+            case let .textChanged(newText):
                 state.text = newText
                 return .none
-            case .isGoodMemoryChanged(let isGoodMemory):
+            case let .isGoodMemoryChanged(isGoodMemory):
                 state.isGoodMemory = isGoodMemory
                 return .none
-            case .selectedImageChanged(let image):
+            case let .selectedImageChanged(image):
                 state.selectedImage = image
                 return .none
-            case .selectedItemChanged(let item):
+            case let .selectedItemChanged(item):
                 state.selectedItem = item
                 return .none
             }

@@ -5,38 +5,38 @@
 //  Created by dong eun shin on 5/4/25.
 //
 
-import SwiftUI
-import PhotosUI
-import PhewComponent
 import ComposableArchitecture
+import PhewComponent
+import PhotosUI
+import SwiftUI
 
 struct MemoryEditorView: View {
     let store: StoreOf<MemoryEditorFeatures>
     @ObservedObject var viewStore: ViewStoreOf<MemoryEditorFeatures>
-    
+
     init(store: StoreOf<MemoryEditorFeatures>) {
         self.store = store
-        self.viewStore = ViewStore(store, observe: { $0 })
+        viewStore = ViewStore(store, observe: { $0 })
     }
-        
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading) {
                 HStack {
                     Spacer()
-                    
+
                     CloseButton {
                         store.send(.closeButtonTapped)
                     }
                 }
-                
+
                 Text("Question")
                     .font(.title2)
-                
+
                 selectedImageWithCloseButton()
-                
+
                 textEditorWithPlaceholder()
-                
+
                 Picker(
                     "How would you like to keep this memory?",
                     selection: viewStore.binding(
@@ -49,7 +49,7 @@ struct MemoryEditorView: View {
                     }
                 }
                 .pickerStyle(.segmented)
-                
+
                 Spacer()
             }
         }
@@ -60,30 +60,31 @@ struct MemoryEditorView: View {
                 .padding()
                 .cornerRadius(16)
         }
-        .onChange(of: viewStore.selectedItem) { oldItem, newItem in
+        .onChange(of: viewStore.selectedItem) { _, newItem in
             if let newItem {
                 Task {
                     if let data = try? await newItem.loadTransferable(type: Data.self),
-                       let uiImage = UIImage(data: data) {
+                       let uiImage = UIImage(data: data)
+                    {
                         store.send(.selectedImageChanged(uiImage))
                     }
                 }
             }
         }
     }
-    
+
     @ViewBuilder
     private func footerView() -> some View {
         HStack(spacing: 20) {
             photosPicker()
-            
+
             Spacer()
-            
+
             saveButton
         }
         .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
     }
-    
+
     @ViewBuilder
     private func selectedImageWithCloseButton() -> some View {
         if let image = store.selectedImage {
@@ -109,7 +110,7 @@ struct MemoryEditorView: View {
                 .animation(.easeInOut, value: store.selectedImage)
         }
     }
-    
+
     @ViewBuilder
     private func textEditorWithPlaceholder() -> some View {
         ZStack(alignment: .topLeading) {
@@ -120,7 +121,7 @@ struct MemoryEditorView: View {
                 )
             )
             .background(Color.clear)
-            
+
             if store.text.isEmpty {
                 Text("Type here...")
                     .foregroundColor(.gray)
@@ -131,7 +132,7 @@ struct MemoryEditorView: View {
         .frame(height: 150)
         .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray.opacity(0.5)))
     }
-    
+
     @ViewBuilder
     private func photosPicker() -> some View {
         PhotosPicker(
@@ -150,9 +151,8 @@ struct MemoryEditorView: View {
                 .clipShape(Circle())
                 .shadow(radius: 4)
         }
-
     }
-    
+
     private var saveButton: some View {
         Button {
             store.send(.saveButtonTapped)
@@ -172,7 +172,7 @@ struct MemoryEditorView: View {
 #Preview {
     MemoryEditorView(
         store: .init(
-            initialState: MemoryEditorFeatures.State.init(selectedDate: .now, mode: .add),
+            initialState: MemoryEditorFeatures.State(selectedDate: .now, mode: .add),
             reducer: {
                 MemoryEditorFeatures()
             }

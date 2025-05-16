@@ -5,8 +5,8 @@
 //  Created by dong eun shin on 5/5/25.
 //
 
-import Foundation
 import Dependencies
+import Foundation
 
 struct MomoryRepository {
     var fetchMemory: @Sendable (Date) throws -> Memory?
@@ -18,9 +18,9 @@ extension MomoryRepository: DependencyKey {
     static let liveValue = Self(
         fetchMemory: { date in
             @Dependency(\.memoryDatabase) var database
-            
+
             let id = date.monthAndDay()
-            
+
             return try database.fetchOneBy(id)
         },
         addMemory: { record in
@@ -30,9 +30,10 @@ extension MomoryRepository: DependencyKey {
         },
         updateMemory: { memory in
             @Dependency(\.memoryDatabase) var database
-            
+
             let id = memory.date.monthAndDay()
-            
+
             try database.updateOneBy(id, memory)
-        })
+        }
+    )
 }

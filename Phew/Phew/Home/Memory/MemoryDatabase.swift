@@ -5,9 +5,9 @@
 //  Created by dong eun shin on 5/5/25.
 //
 
+import Dependencies
 import Foundation
 import SwiftData
-import Dependencies
 
 struct MemoryDatabase {
     var fetchOneBy: @Sendable (_ id: String) throws -> Memory?
@@ -22,7 +22,7 @@ extension MemoryDatabase: DependencyKey {
         fetchOneBy: { id in
             @Dependency(\.modelContextProvider.context) var context
             let memoryContext = try context()
-            
+
             let predicate = #Predicate<Memory> { $0.id == id }
             let descriptor = FetchDescriptor<Memory>(predicate: predicate)
 
@@ -33,7 +33,7 @@ extension MemoryDatabase: DependencyKey {
             let memoryContext = try context()
 
             memoryContext.insert(memory)
-            
+
             try memoryContext.save()
         },
         deleteAll: {
@@ -50,10 +50,10 @@ extension MemoryDatabase: DependencyKey {
         deleteOneBy: { id in
             @Dependency(\.modelContextProvider.context) var context
             let memoryContext = try context()
-            
+
             let predicate = #Predicate<Memory> { $0.id == id }
             let descriptor = FetchDescriptor<Memory>(predicate: predicate)
-            
+
             if let memory = try memoryContext.fetch(descriptor).first {
                 memoryContext.delete(memory)
                 try memoryContext.save()
@@ -62,15 +62,15 @@ extension MemoryDatabase: DependencyKey {
         updateOneBy: { id, memory in
             @Dependency(\.modelContextProvider.context) var context
             let memoryContext = try context()
-            
+
             let predicate = #Predicate<Memory> { $0.id == id }
             let descriptor = FetchDescriptor<Memory>(predicate: predicate)
-            
+
             if let fetchedMemory = try memoryContext.fetch(descriptor).first {
                 fetchedMemory.text = memory.text
                 fetchedMemory.images = memory.images
                 fetchedMemory.isGoodMemory = memory.isGoodMemory
-                
+
                 try memoryContext.save()
             }
         }

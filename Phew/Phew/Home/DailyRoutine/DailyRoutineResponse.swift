@@ -15,14 +15,14 @@ class DailyRoutineResponse {
     var dailyRoutineResponseType: DailyRoutineResponseType
     var answerText: String?
     var answerScore: Int?
-    
-    enum DailyRoutineResponseType: String, Codable  {
+
+    enum DailyRoutineResponseType: String, Codable {
         case text
         case score
         case none
         case emoji
     }
-    
+
     init(id: UUID, question: String, dailyRoutineResponseType: DailyRoutineResponseType, answerText: String? = nil, answerScore: Int? = nil) {
         self.id = id
         self.question = question

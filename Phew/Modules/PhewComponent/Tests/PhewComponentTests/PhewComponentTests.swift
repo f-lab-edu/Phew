@@ -1,5 +1,5 @@
-import XCTest
 @testable import PhewComponent
+import XCTest
 
 final class PhewComponentTests: XCTestCase {
     func testExample() throws {

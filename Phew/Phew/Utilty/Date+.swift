@@ -24,16 +24,16 @@ extension Date {
         formatter.dateFormat = "d"
         return formatter.string(from: self)
     }
-    
+
     func monthAndDay() -> String {
         let formatter = DateFormatter()
         formatter.locale = .current
         formatter.dateFormat = "MMM d"
         return formatter.string(from: self)
     }
-    
+
     func generateWeek() -> [Date] {
-        (0..<7).compactMap {
+        (0 ..< 7).compactMap {
             Calendar.current.date(byAdding: .day, value: $0, to: self)
         }
     }
