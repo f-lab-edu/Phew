@@ -31,7 +31,7 @@ struct AppTabView: View {
                 .tag(AppTabFeature.Tab.status)
                 .tabItem { Label("status", systemImage: "checkmark.circle") }
 
-            AccountView()
+            AccountView(store: store.scope(state: \.account, action: \.account))
                 .tag(AppTabFeature.Tab.account)
                 .tabItem {  Label("Account", systemImage: "person.crop.circle") }
         }

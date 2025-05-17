@@ -21,12 +21,14 @@ struct AppTabFeature {
         var selectedTab: Tab = .home
         var home = HomeFeature.State()
         var status = StatusFeature.State()
+        var account = AccountFeature.State()
     }
 
     enum Action {
         case selectTab(Tab)
         case home(HomeFeature.Action)
         case status(StatusFeature.Action)
+        case account(AccountFeature.Action)
     }
 
     var body: some Reducer<State, Action> {
@@ -36,6 +38,10 @@ struct AppTabFeature {
 
         Scope(state: \.status, action: \.status) {
             StatusFeature()
+        }
+
+        Scope(state: \.account, action: \.account) {
+            AccountFeature()
         }
 
         Reduce { state, action in
