@@ -20,6 +20,7 @@ struct HomeFeature {
         @Presents var addMemory: MemoryEditorFeatures.State?
         @Presents var memoryDetail: MemoryDetailFeature.State?
         @Presents var routineDetail: EditDailyRoutineFeature.State?
+        @Presents var meditation: MeditationFeature.State?
 
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
@@ -44,23 +45,24 @@ struct HomeFeature {
     enum Action {
         case selectedDate(Date)
         case setCurrentWeekStartDate(Date)
-
+        case fetchMemory
         case moveToPreviousWeek
         case moveToNextWeek
         case setSwipeDirection(UIPageViewController.NavigationDirection)
-
         case fetchSelectedDateDailyRoutineRecord
+
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
-        case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
-        case showRoutineDetail(PresentationAction<EditDailyRoutineFeature.Action>)
+        case savedMemoryButtonTapped
+        case meditationButtonTapped
+        case addMemoryButtonTapped
         case routineDetailButtonTapped(dailyRoutineType: DailyRoutineType)
 
+        case addRoutine(PresentationAction<DailyRoutineFeature.Action>)
+        case showRoutineDetail(PresentationAction<EditDailyRoutineFeature.Action>)
         case addMemory(PresentationAction<MemoryEditorFeatures.Action>)
-        case addMemoryButtonTapped
-        case fetchMemory
-        case savedMemoryButtonTapped
         case showMemoryDetail(PresentationAction<MemoryDetailFeature.Action>)
+        case showMeditationView(PresentationAction<MeditationFeature.Action>)
     }
 
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
@@ -182,6 +184,9 @@ struct HomeFeature {
             case let .showMemoryDetail(.presented(.delegate(.update(memory)))):
                 state.selectedDateMemory = memory
                 return .none
+            case .meditationButtonTapped:
+                state.meditation = MeditationFeature.State()
+                return .none
             default:
                 return .none
             }
@@ -197,6 +202,9 @@ struct HomeFeature {
         }
         .ifLet(\.$routineDetail, action: \.showRoutineDetail) {
             EditDailyRoutineFeature()
+        }
+        .ifLet(\.$meditation, action: \.showMeditationView) {
+            MeditationFeature()
         }
     }
 }

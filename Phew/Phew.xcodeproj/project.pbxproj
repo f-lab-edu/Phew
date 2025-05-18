@@ -8,12 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		7C1D179A2DD1BF08004985FA /* PhewComponent in Frameworks */ = {isa = PBXBuildFile; productRef = 7C1D17992DD1BF08004985FA /* PhewComponent */; };
+		7C3D014A2DD99F2800637B7C /* inner-peace.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7C3D01492DD99F2800637B7C /* inner-peace.mp3 */; };
 		7C7084182DBD2B7500644A05 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 7C7084172DBD2B7500644A05 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		7C0E306F2DB91282004D0DD6 /* Phew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Phew.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7C1D17982DD1BAE6004985FA /* PhewComponent */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PhewComponent; sourceTree = "<group>"; };
+		7C3D01492DD99F2800637B7C /* inner-peace.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "inner-peace.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -40,6 +42,7 @@
 		7C0E30662DB91282004D0DD6 = {
 			isa = PBXGroup;
 			children = (
+				7C3D01482DD99F1200637B7C /* Music */,
 				7C8F66912DD2576800514CC7 /* Modules */,
 				7C0E30712DB91282004D0DD6 /* Phew */,
 				7C1D17912DD1B7CB004985FA /* Frameworks */,
@@ -60,6 +63,14 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		7C3D01482DD99F1200637B7C /* Music */ = {
+			isa = PBXGroup;
+			children = (
+				7C3D01492DD99F2800637B7C /* inner-peace.mp3 */,
+			);
+			path = Music;
 			sourceTree = "<group>";
 		};
 		7C8F66912DD2576800514CC7 /* Modules */ = {
@@ -139,6 +150,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7C3D014A2DD99F2800637B7C /* inner-peace.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
