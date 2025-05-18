@@ -52,6 +52,7 @@ struct MeditationView: View {
                 Text(elapsedTimeString(from: viewStore.elapsedTime))
                     .font(.headline)
                     .padding(.bottom, 20)
+                    .contentTransition(.numericText())
 
                 musicPlayer()
 

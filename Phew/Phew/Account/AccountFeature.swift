@@ -23,6 +23,17 @@ enum TaskType: String, Equatable, CaseIterable {
             return "Daily Routine"
         }
     }
+
+    var body: String {
+        switch self {
+        case .meditation:
+            return "Meditation"
+        case .journal:
+            return "Journal"
+        case .dailyRoutine:
+            return "Daily Routine"
+        }
+    }
 }
 
 struct TaskItem: Identifiable, Equatable, Hashable {
@@ -53,8 +64,8 @@ struct AccountFeature {
             switch action {
             case .selectTask(let task):
                 state.taskDetail = TaskDetailFeature.State(taskType: task.type)
-            return .none
-            default:
+                return .none
+            case .taskDetail:
                 return .none
             }
         }

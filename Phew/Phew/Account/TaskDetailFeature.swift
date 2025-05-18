@@ -77,7 +77,7 @@ struct TaskDetailFeature {
             case .scheduleNotification:
                 return .run { [state] send in
                     do {
-                        try await taskDetailEnvironment.scheduleNotification(state.notificationTime, state.taskType.title)
+                        try await taskDetailEnvironment.scheduleNotification(state.notificationTime, state.taskType.title, state.taskType.body)
                         return await send(.notificationScheduled(true))
                     } catch {
                         return await send(.notificationScheduled(false))
@@ -107,7 +107,7 @@ extension DependencyValues {
 
 struct TaskDetailEnvironment {
     var requestAuthorization: @Sendable () async throws -> Bool
-    var scheduleNotification: @Sendable (Date, String) async throws -> Void
+    var scheduleNotification: @Sendable (_ date: Date,_ title: String,_ body: String) async throws -> Void
 }
 
 extension TaskDetailEnvironment: DependencyKey {
@@ -119,7 +119,7 @@ extension TaskDetailEnvironment: DependencyKey {
                         switch settings.authorizationStatus {
                         case .notDetermined:
                             UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-                                if let error = error {
+                                if let error {
                                     continuation.resume(throwing: error)
                                 } else {
                                     continuation.resume(returning: granted)
@@ -136,7 +136,7 @@ extension TaskDetailEnvironment: DependencyKey {
                 }
             }
         },
-        scheduleNotification: { date, body in
+        scheduleNotification: { date, title, body in
             try await withCheckedThrowingContinuation { continuation in
                 let content = UNMutableNotificationContent()
                 content.title = "알림"
@@ -150,7 +150,7 @@ extension TaskDetailEnvironment: DependencyKey {
                 let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
 
                 UNUserNotificationCenter.current().add(request) { error in
-                    if let error = error {
+                    if let error {
                         continuation.resume(throwing: error)
                     } else {
                         continuation.resume(returning: ())
