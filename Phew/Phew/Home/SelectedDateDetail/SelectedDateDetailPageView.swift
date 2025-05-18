@@ -27,6 +27,8 @@ struct SelectedDateDetailPageView: View {
                 dailyRoutineButtons()
 
                 memoryButtons()
+
+                meditationButton()
             }
         }
         .frame(maxHeight: .infinity, alignment: .top)
@@ -48,6 +50,11 @@ struct SelectedDateDetailPageView: View {
             item: $store.scope(state: \.routineDetail, action: \.showRoutineDetail)
         ) { store in
             DailyRoutineDetailView(store: store)
+        }
+        .fullScreenCover(
+            item: $store.scope(state: \.meditation, action: \.showMeditationView)
+        ) { store in
+            MeditationView(store: store)
         }
         .navigationDestination(
             item: $store.scope(state: \.memoryDetail, action: \.showMemoryDetail))
@@ -220,16 +227,21 @@ struct SelectedDateDetailPageView: View {
         )
         .padding([.bottom, .horizontal])
     }
-}
 
-#Preview {
-    SelectedDateDetailPageView(
-        store: .init(
-            initialState: HomeFeature.State(),
-            reducer: {
-                HomeFeature()
+    @ViewBuilder
+    func meditationButton() -> some View {
+        Button {
+            store.send(.meditationButtonTapped)
+        } label: {
+            VStack {
+                Text("Meditation")
             }
-        ),
-        date: .now
-    )
+            .frame(maxWidth: .infinity, minHeight: 150)
+            .background(.green.opacity(0.5))
+            .foregroundColor(.white)
+            .cornerRadius(16)
+            .shadow(color: Color.black.opacity(0.2), radius: 4, x: 0, y: 4)
+        }
+        .padding([.bottom, .horizontal])
+    }
 }
