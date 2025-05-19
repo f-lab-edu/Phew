@@ -7,23 +7,29 @@
 
 import ComposableArchitecture
 import SwiftUI
+import OSLog
+
+private let logger = Logger(subsystem: "Phew", category: "MeditationFeature")
 
 @Reducer
 struct MeditationFeature {
     @ObservableState
     struct State: Equatable {
+        var selectedDate: Date
         var isPlaying: Bool = false
         var elapsedTime: TimeInterval = 0
     }
-
+    
     enum Action: Equatable {
         case closeButtonTapped
         case playPauseTapped
         case timerTicked
+        case updateMeditationSession
     }
 
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.meditationEnvironment) var environment
+    @Dependency(\.meditationSessionRepository.updateMeditationSession) var updateMeditationSession
 
     private enum CancelID { case timer }
 
@@ -33,7 +39,10 @@ struct MeditationFeature {
             case .closeButtonTapped:
                 state.isPlaying = false
                 environment.audioPlayer.pause()
-                return .run { _ in await self.dismiss() }
+                return .run { send in
+                    await send(.updateMeditationSession)
+                    await self.dismiss()
+                }
 
             case .playPauseTapped:
                 state.isPlaying.toggle()
@@ -49,6 +58,13 @@ struct MeditationFeature {
 
                 state.elapsedTime += 0.02
                 
+                return .none
+            case .updateMeditationSession:
+                do {
+                    try updateMeditationSession(state.selectedDate, state.elapsedTime)
+                } catch {
+                    logger.error("Failed to update meditation session:\(error.localizedDescription)")
+                }
                 return .none
             }
         }

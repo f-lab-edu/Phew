@@ -24,15 +24,6 @@ struct MeditationView: View {
     var body: some View {
         NavigationStack {
             VStack {
-                HStack {
-                    Spacer()
-
-                    CloseButton {
-                        viewStore.send(.closeButtonTapped)
-                    }
-                }
-                .padding(.horizontal)
-
                 Spacer()
 
                 ZStack {
@@ -55,6 +46,14 @@ struct MeditationView: View {
                     .contentTransition(.numericText())
 
                 musicPlayer()
+                    .padding(.bottom)
+
+                Button {
+                    viewStore.send(.closeButtonTapped)
+                } label: {
+                    Text("End")
+                        .font(.title)
+                }
 
                 Spacer()
             }

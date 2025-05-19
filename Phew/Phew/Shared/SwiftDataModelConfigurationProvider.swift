@@ -21,6 +21,7 @@ extension ModelContextProvider: DependencyKey {
                     DailyRoutineResponse.self,
                     DailyRoutineTask.self,
                     Memory.self,
+                    MeditationSession.self
                 ])
                 let configuration = ModelConfiguration(isStoredInMemoryOnly: false)
                 let container = try ModelContainer(for: schema, configurations: [configuration])
