@@ -25,12 +25,15 @@ struct HomeFeature {
         var selectedDate: Date = .now
         var morningDailyRoutineRecord: DailyRoutineRecord?
         var nightDailyRoutineRecord: DailyRoutineRecord?
+        var meditationSession: MeditationSession?
 
         var swipeDirection: UIPageViewController.NavigationDirection = .forward
         var currentWeekStartDate: Date = Date().startOfWeek()
 
         var morningDailyRoutineCache: [String: DailyRoutineRecord] = [:]
         var nightDailyRoutineCache: [String: DailyRoutineRecord] = [:]
+        var memoryCache: [String: Memory] = [:]
+        var meditationSessionCache: [String: MeditationSession] = [:]
 
         var selectedDateMemory: Memory? {
             didSet {
@@ -38,8 +41,6 @@ struct HomeFeature {
                 memoryCache[date] = selectedDateMemory
             }
         }
-
-        var memoryCache: [String: Memory] = [:]
     }
 
     enum Action {
@@ -50,6 +51,7 @@ struct HomeFeature {
         case moveToNextWeek
         case setSwipeDirection(UIPageViewController.NavigationDirection)
         case fetchSelectedDateDailyRoutineRecord
+        case fetchMeditationSession
 
         case addMorningRoutineButtonTapped
         case addNightRoutineButtonTapped
@@ -67,10 +69,21 @@ struct HomeFeature {
 
     @Dependency(\.dailyRoutineRepository.fetchDailyRoutine) var fetchDailyRoutine
     @Dependency(\.memoryRepository.fetchMemory) var fetchMemory
-
+    @Dependency(\.meditationSessionRepository.fetchMeditationSession) var fetchMeditationSession
+    
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
+            case .fetchMeditationSession:
+                let selectedDate = state.selectedDate
+                do {
+                    state.meditationSession = try fetchMeditationSession(selectedDate)
+                    state.meditationSessionCache[selectedDate.monthAndDay()] = state.meditationSession
+                } catch {
+                    // TODO: - 에러 처리
+                    logger.error("명상 데이터 불러오기 오류 발생: \(error.localizedDescription)")
+                }
+                return .none
             case .fetchSelectedDateDailyRoutineRecord:
                 let selectedDate = state.selectedDate
 
@@ -185,7 +198,7 @@ struct HomeFeature {
                 state.selectedDateMemory = memory
                 return .none
             case .meditationButtonTapped:
-                state.meditation = MeditationFeature.State()
+                state.meditation = MeditationFeature.State(selectedDate: state.selectedDate)
                 return .none
             default:
                 return .none

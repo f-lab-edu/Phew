@@ -35,6 +35,7 @@ struct SelectedDateDetailPageView: View {
         .onAppear {
             store.send(.fetchSelectedDateDailyRoutineRecord)
             store.send(.fetchMemory)
+            store.send(.fetchMeditationSession)
         }
         .fullScreenCover(
             item: $store.scope(state: \.addRoutine, action: \.addRoutine)
@@ -235,6 +236,7 @@ struct SelectedDateDetailPageView: View {
         } label: {
             VStack {
                 Text("Meditation")
+                Text("\(viewStore.meditationSession?.duration ?? 0)")
             }
             .frame(maxWidth: .infinity, minHeight: 150)
             .background(.green.opacity(0.5))

@@ -37,6 +37,11 @@ extension Date {
             Calendar.current.date(byAdding: .day, value: $0, to: self)
         }
     }
+
+    func toUTC() -> Date {
+        let timeZoneOffset = TimeZone.current.secondsFromGMT(for: self)
+        return addingTimeInterval(TimeInterval(-timeZoneOffset))
+    }
 }
 
 extension Array {

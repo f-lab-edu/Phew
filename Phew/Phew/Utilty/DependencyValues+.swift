@@ -33,6 +33,16 @@ extension DependencyValues {
         set { self[MomoryRepository.self] = newValue }
     }
 
+    var meditationSessionDatabase: MeditationSessionDatabase {
+        get { self[MeditationSessionDatabase.self] }
+        set { self[MeditationSessionDatabase.self] = newValue }
+    }
+
+    var meditationSessionRepository: MeditationSessionRepository {
+        get { self[MeditationSessionRepository.self] }
+        set { self[MeditationSessionRepository.self] = newValue }
+    }
+
     var emojiClient: EmojiClient {
         get { self[EmojiClient.self] }
         set { self[EmojiClient.self] = newValue }
